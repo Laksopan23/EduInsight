@@ -51,15 +51,15 @@
                 </li>
 
                 <!-- Teacher Management Menu -->
-                <li class="submenu  {{set_active(['teacher/add/page','teacher/list/page','teacher/grid/page','teacher/edit'])}} {{ (request()->is('teacher/edit/*')) ? 'active' : '' }}">
+                <li class="submenu  {{set_active(['teacher/add','teacher/list','teacher/grid/page','teacher/edit'])}} {{ (request()->is('teacher/edit/*')) ? 'active' : '' }}">
                     <a href="#"><i class="fas fa-chalkboard-teacher"></i>
                         <span> Teachers</span>
                         <span class="menu-arrow"></span>
                     </a>
                     <ul>
-                        <li><a href="{{ route('teacher/list/page') }}" class="{{set_active(['teacher/list/page','teacher/grid/page'])}}">Teacher List</a></li>
+                        <li><a href="{{ route('teacher/list') }}" class="{{set_active(['teacher/list','teacher/grid/page'])}}">Teacher List</a></li>
                         <li><a href="teacher-details.html">Teacher View</a></li>
-                        <li><a href="{{ route('teacher/add/page') }}" class="{{set_active(['teacher/add/page'])}}">Teacher Add</a></li>
+                        <li><a href="{{ route('teacher/add') }}" class="{{set_active(['teacher/add'])}}">Teacher Add</a></li>
                         <li><a class="{{ (request()->is('teacher/edit/*')) ? 'active' : '' }}">Teacher Edit</a></li>
                     </ul>
                 </li>

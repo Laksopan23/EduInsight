@@ -2,147 +2,226 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Student;
 use Illuminate\Http\Request;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
+use App\Models\User;
+use App\Models\Student;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
 class StudentController extends Controller
 {
-    /** index page student list */
     public function student()
     {
-        $studentList = Student::all();
+        $studentList = Student::with('user')->get();
         return view('student.student', compact('studentList'));
     }
 
-    /** index page student grid */
     public function studentGrid()
     {
-        $studentList = Student::all();
+        $studentList = Student::with('user')->get();
         return view('student.student-grid', compact('studentList'));
     }
 
-    /** student add page */
     public function studentAdd()
     {
         return view('student.add-student');
     }
 
-    /** student save record */
     public function studentSave(Request $request)
     {
         $request->validate([
-            'first_name'    => 'required|string',
-            'last_name'     => 'required|string',
-            'gender'        => 'required|not_in:0',
-            'date_of_birth' => 'required|string',
-            'roll'          => 'required|string',
-            'blood_group'   => 'required|string',
-            'religion'      => 'required|string',
-            'email'         => 'required|email',
-            'class'         => 'required|string',
-            'section'       => 'required|string',
-            'admission_id'  => 'required|string',
-            'phone_number'  => 'required',
-            'upload'        => 'required|image',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'gender' => 'required|string|in:Male,Female,Others',
+            'date_of_birth' => 'required|date',
+            'roll' => 'required|string',
+            'blood_group' => 'required|string|in:A+,B+,O+,A-,B-,O-,AB+,AB-',
+            'religion' => 'required|string',
+            'class' => 'required|string',
+            'section' => 'required|string',
+            'admission_id' => 'required|string|unique:students,admission_id',
+            'phone_number' => 'required|string|regex:/^[0-9]{10}$/',
+            'upload' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        if (Session::get('role_name') !== 'Admin') {
+            Toastr::error('Only Admins can add students!', 'Error');
+            return redirect()->back();
+        }
 
         DB::beginTransaction();
         try {
+            $user = User::create([
+                'user_id' => 'USR' . Str::random(8),
+                'name' => $request->first_name . ' ' . $request->last_name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'date_of_birth' => $request->date_of_birth,
+                'role_name' => 'Student',
+                'status' => 'Active',
+                'password' => Hash::make('default123'),
+                'avatar' => 'photo_defaults.jpg',
+            ]);
 
-            $upload_file = rand() . '.' . $request->upload->extension();
-            $request->upload->move(storage_path('app/public/student-photos/'), $upload_file);
-            if (!empty($request->upload)) {
-                $student = new Student;
-                $student->first_name   = $request->first_name;
-                $student->last_name    = $request->last_name;
-                $student->gender       = $request->gender;
-                $student->date_of_birth = $request->date_of_birth;
-                $student->roll         = $request->roll;
-                $student->blood_group  = $request->blood_group;
-                $student->religion     = $request->religion;
-                $student->email        = $request->email;
-                $student->class        = $request->class;
-                $student->section      = $request->section;
-                $student->admission_id = $request->admission_id;
-                $student->phone_number = $request->phone_number;
-                $student->upload = $upload_file;
-                $student->save();
-
-                Toastr::success('Has been add successfully :)', 'Success');
-                DB::commit();
+            if (!$user->id) {
+                Log::error('Failed to create user for student: ' . $request->email);
+                throw new \Exception('User creation failed');
             }
 
-            return redirect()->back();
+            $upload_file = Str::uuid() . '.' . $request->upload->extension();
+            $request->upload->storeAs('public/student-photos', $upload_file);
+
+            $student = Student::create([
+                'user_id' => $user->user_id,
+                'user_id_fk' => $user->id,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'gender' => $request->gender,
+                'date_of_birth' => $request->date_of_birth,
+                'roll' => $request->roll,
+                'blood_group' => $request->blood_group,
+                'religion' => $request->religion,
+                'email' => $request->email,
+                'class' => $request->class,
+                'section' => $request->section,
+                'admission_id' => $request->admission_id,
+                'phone_number' => $request->phone_number,
+                'upload' => $upload_file,
+            ]);
+
+            DB::commit();
+            Toastr::success('Student added successfully!', 'Success');
+            return redirect()->route('student/list');
         } catch (\Exception $e) {
             DB::rollback();
-            Toastr::error('fail, Add new student  :)', 'Error');
-            return redirect()->back();
+            Log::error('Student save failed: ' . $e->getMessage());
+            Toastr::error('Failed to add student. Please try again.', 'Error');
+            return redirect()->back()->withInput();
         }
     }
 
-    /** view for edit student */
     public function studentEdit($id)
     {
-        $studentEdit = Student::where('id', $id)->first();
+        $studentEdit = Student::with('user')->where('id', $id)->firstOrFail();
         return view('student.edit-student', compact('studentEdit'));
     }
 
-    /** update record */
     public function studentUpdate(Request $request)
     {
+        $student = Student::findOrFail($request->id);
+
+        $request->validate([
+            'id' => 'required|exists:students,id',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $student->user_id_fk . ',id',
+            'gender' => 'required|string|in:Male,Female,Others',
+            'date_of_birth' => 'required|date',
+            'roll' => 'required|string',
+            'blood_group' => 'required|string|in:A+,B+,O+,A-,B-,O-,AB+,AB-',
+            'religion' => 'required|string',
+            'class' => 'required|string',
+            'section' => 'required|string',
+            'admission_id' => 'required|string|unique:students,admission_id,' . $request->id,
+            'phone_number' => 'required|string|regex:/^[0-9]{10}$/',
+            'upload' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        if (Session::get('role_name') !== 'Admin') {
+            Toastr::error('Only Admins can update students!', 'Error');
+            return redirect()->back();
+        }
+
         DB::beginTransaction();
         try {
+            $student = Student::findOrFail($request->id);
+            $user = $student->user;
 
-            if (!empty($request->upload)) {
-                unlink(storage_path('app/public/student-photos/' . $request->image_hidden));
-                $upload_file = rand() . '.' . $request->upload->extension();
-                $request->upload->move(storage_path('app/public/student-photos/'), $upload_file);
-            } else {
-                $upload_file = $request->image_hidden;
+            $upload_file = $student->upload;
+            if ($request->hasFile('upload')) {
+                if ($upload_file && Storage::exists('public/student-photos/' . $upload_file)) {
+                    Storage::delete('public/student-photos/' . $upload_file);
+                }
+                $upload_file = Str::uuid() . '.' . $request->upload->extension();
+                $request->upload->storeAs('public/student-photos', $upload_file);
             }
 
-            $updateRecord = [
-                'upload' => $upload_file,
-            ];
-            Student::where('id', $request->id)->update($updateRecord);
+            $user->update([
+                'name' => $request->first_name . ' ' . $request->last_name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'date_of_birth' => $request->date_of_birth,
+            ]);
 
-            Toastr::success('Has been update successfully :)', 'Success');
+            $student->update([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'gender' => $request->gender,
+                'date_of_birth' => $request->date_of_birth,
+                'roll' => $request->roll,
+                'blood_group' => $request->blood_group,
+                'religion' => $request->religion,
+                'email' => $request->email,
+                'class' => $request->class,
+                'section' => $request->section,
+                'admission_id' => $request->admission_id,
+                'phone_number' => $request->phone_number,
+                'upload' => $upload_file,
+            ]);
+
             DB::commit();
-            return redirect()->back();
+            Toastr::success('Student updated successfully!', 'Success');
+            return redirect()->route('student/list');
         } catch (\Exception $e) {
             DB::rollback();
-            Toastr::error('fail, update student  :)', 'Error');
-            return redirect()->back();
+            Log::error('Student update failed: ' . $e->getMessage());
+            Toastr::error('Failed to update student. Please try again.', 'Error');
+            return redirect()->back()->withInput();
         }
     }
 
-    /** student delete */
     public function studentDelete(Request $request)
     {
+        $request->validate([
+            'id' => 'required|exists:students,id',
+        ]);
+
+        if (Session::get('role_name') !== 'Admin') {
+            Toastr::error('Only Admins can delete students!', 'Error');
+            return redirect()->back();
+        }
+
         DB::beginTransaction();
         try {
+            $student = Student::findOrFail($request->id);
+            $upload_file = $student->upload;
 
-            if (!empty($request->id)) {
-                Student::destroy($request->id);
-                unlink(storage_path('app/public/student-photos/' . $request->avatar));
-                DB::commit();
-                Toastr::success('Student deleted successfully :)', 'Success');
-                return redirect()->back();
+            if ($upload_file && Storage::exists('public/student-photos/' . $upload_file)) {
+                Storage::delete('public/student-photos/' . $upload_file);
             }
+
+            $student->delete(); // Cascade deletes user due to foreign key
+
+            DB::commit();
+            Toastr::success('Student deleted successfully!', 'Success');
+            return redirect()->route('student/list');
         } catch (\Exception $e) {
             DB::rollback();
-            Toastr::error('Student deleted fail :)', 'Error');
+            Log::error('Student delete failed: ' . $e->getMessage());
+            Toastr::error('Failed to delete student. Please try again.', 'Error');
             return redirect()->back();
         }
     }
 
-    /** student profile page */
     public function studentProfile($id)
     {
-        $studentProfile = Student::where('id', $id)->first();
+        $studentProfile = Student::with('user')->where('id', $id)->firstOrFail();
         return view('student.student-profile', compact('studentProfile'));
     }
 }

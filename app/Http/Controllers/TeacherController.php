@@ -5,144 +5,183 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
+use App\Models\User;
 use App\Models\Teacher;
+use Illuminate\Support\Str;
 
 class TeacherController extends Controller
 {
-    /** add teacher page */
     public function teacherAdd()
     {
-        // No need for users since we're not linking to User model
         return view('teacher.add-teacher');
     }
 
-    /** teacher list */
     public function teacherList()
     {
-        // Fetch all teachers
-        $teacherList = Teacher::all();
+        $teacherList = Teacher::with('user')->get();
         return view('teacher.list-teachers', compact('teacherList'));
     }
 
-    /** teacher Grid */
     public function teacherGrid()
     {
-        // Same as teacherList, but for grid
-        $teacherGrid = Teacher::all();
+        $teacherGrid = Teacher::with('user')->get();
         return view('teacher.teachers-grid', compact('teacherGrid'));
     }
 
-    /** save record */
     public function saveRecord(Request $request)
     {
         $request->validate([
-            'full_name'     => 'required|string',
-            'gender'        => 'required|string',
-            'experience'    => 'required|string',
-            'date_of_birth' => 'required|string',
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'gender' => 'required|string|in:Male,Female,Others',
+            'experience' => 'required|string',
+            'date_of_birth' => 'required|date',
             'qualification' => 'required|string',
-            'phone_number'  => 'required|string',
-            'address'       => 'required|string',
-            'city'          => 'required|string',
-            'state'         => 'required|string',
-            'zip_code'      => 'required|string',
-            'country'       => 'required|string',
+            'phone_number' => 'required|string|regex:/^[0-9]{10}$/',
+            'address' => 'required|string',
+            'city' => 'required|string',
+            'state' => 'required|string',
+            'zip_code' => 'required|string',
+            'country' => 'required|string',
         ]);
 
-        try {
-            // Create and save the teacher record
-            $saveRecord = new Teacher;
-            $saveRecord->full_name     = $request->full_name;
-            $saveRecord->gender        = $request->gender;
-            $saveRecord->experience    = $request->experience;
-            $saveRecord->qualification = $request->qualification;
-            $saveRecord->date_of_birth = $request->date_of_birth;
-            $saveRecord->phone_number  = $request->phone_number;
-            $saveRecord->address       = $request->address;
-            $saveRecord->city          = $request->city;
-            $saveRecord->state         = $request->state;
-            $saveRecord->zip_code      = $request->zip_code;
-            $saveRecord->country       = $request->country;
-            $saveRecord->save();
+        if (Session::get('role_name') !== 'Admin') {
+            Toastr::error('Unauthorized access!', 'Error');
+            return redirect()->back();
+        }
 
-            Toastr::success('Teacher has been added successfully!', 'Success');
-            return redirect()->back();
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'user_id' => 'USR' . Str::random(8),
+                'name' => $request->full_name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'date_of_birth' => $request->date_of_birth,
+                'role_name' => 'Teachers',
+                'status' => 'Active',
+                'password' => Hash::make('default123'), // Change as needed
+                'avatar' => 'photo_defaults.jpg',
+            ]);
+
+            Teacher::create([
+                'user_id' => $user->user_id,
+                'user_id_fk' => $user->id,
+                'full_name' => $request->full_name,
+                'gender' => $request->gender,
+                'experience' => $request->experience,
+                'qualification' => $request->qualification,
+                'date_of_birth' => $request->date_of_birth,
+                'phone_number' => $request->phone_number,
+                'address' => $request->address,
+                'city' => $request->city,
+                'state' => $request->state,
+                'zip_code' => $request->zip_code,
+                'country' => $request->country,
+            ]);
+
+            DB::commit();
+            Toastr::success('Teacher added successfully!', 'Success');
+            return redirect()->route('teacher/list');
         } catch (\Exception $e) {
-            Log::info($e);
             DB::rollback();
-            Toastr::error('Failed to add new teacher.', 'Error');
-            return redirect()->back();
+            Toastr::error('Failed to add teacher: ' . $e->getMessage(), 'Error');
+            return redirect()->back()->withInput();
         }
     }
 
-    /** edit record */
-    public function editRecord($id) // Changed to use teacher id
+    public function editRecord($id)
     {
-        // Fetch teacher by ID
-        $teacher = Teacher::findOrFail($id);
+        $teacher = Teacher::with('user')->findOrFail($id);
         return view('teacher.edit-teacher', compact('teacher'));
     }
 
-    /** update record teacher */
     public function updateRecordTeacher(Request $request)
     {
         $request->validate([
-            'full_name'     => 'required|string',
-            'gender'        => 'required|string',
-            'experience'    => 'required|string',
-            'date_of_birth' => 'required|string',
+            'id' => 'required|exists:teachers,id',
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $request->user_id . ',user_id',
+            'gender' => 'required|string|in:Male,Female,Others',
+            'experience' => 'required|string',
+            'date_of_birth' => 'required|date',
             'qualification' => 'required|string',
-            'phone_number'  => 'required|string',
-            'address'       => 'required|string',
-            'city'          => 'required|string',
-            'state'         => 'required|string',
-            'zip_code'      => 'required|string',
-            'country'       => 'required|string',
+            'phone_number' => 'required|string|regex:/^[0-9]{10}$/',
+            'address' => 'required|string',
+            'city' => 'required|string',
+            'state' => 'required|string',
+            'zip_code' => 'required|string',
+            'country' => 'required|string',
         ]);
+
+        if (Session::get('role_name') !== 'Admin') {
+            Toastr::error('Unauthorized access!', 'Error');
+            return redirect()->back();
+        }
 
         DB::beginTransaction();
         try {
-            $updateRecord = [
-                'full_name'     => $request->full_name,
-                'gender'        => $request->gender,
+            $teacher = Teacher::findOrFail($request->id);
+            $user = $teacher->user;
+
+            $user->update([
+                'name' => $request->full_name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
                 'date_of_birth' => $request->date_of_birth,
+            ]);
+
+            $teacher->update([
+                'full_name' => $request->full_name,
+                'gender' => $request->gender,
+                'experience' => $request->experience,
                 'qualification' => $request->qualification,
-                'experience'    => $request->experience,
-                'phone_number'  => $request->phone_number,
-                'address'       => $request->address,
-                'city'          => $request->city,
-                'state'         => $request->state,
-                'zip_code'      => $request->zip_code,
-                'country'       => $request->country,
-            ];
+                'date_of_birth' => $request->date_of_birth,
+                'phone_number' => $request->phone_number,
+                'address' => $request->address,
+                'city' => $request->city,
+                'state' => $request->state,
+                'zip_code' => $request->zip_code,
+                'country' => $request->country,
+            ]);
 
-            Teacher::where('id', $request->id)->update($updateRecord);
-
-            Toastr::success('Teacher record has been updated successfully!', 'Success');
             DB::commit();
-            return redirect()->back();
+            Toastr::success('Teacher updated successfully!', 'Success');
+            return redirect()->route('teacher/list');
         } catch (\Exception $e) {
             DB::rollback();
-            Log::info($e);
-            Toastr::error('Failed to update teacher record.', 'Error');
-            return redirect()->back();
+            Toastr::error('Failed to update teacher: ' . $e->getMessage(), 'Error');
+            return redirect()->back()->withInput();
         }
     }
 
-    /** delete record */
     public function teacherDelete(Request $request)
     {
+        $request->validate([
+            'id' => 'required|exists:teachers,id',
+        ]);
+
+        if (Session::get('role_name') !== 'Admin') {
+            Toastr::error('Unauthorized access!', 'Error');
+            return redirect()->back();
+        }
+
         DB::beginTransaction();
         try {
-            Teacher::destroy($request->id);
+            $teacher = Teacher::findOrFail($request->id);
+            $user = $teacher->user;
+
+            $teacher->delete(); // Cascade deletes user due to foreign key
+            // User delete handled by cascade
+
             DB::commit();
-            Toastr::success('Teacher record has been deleted successfully!', 'Success');
-            return redirect()->back();
+            Toastr::success('Teacher deleted successfully!', 'Success');
+            return redirect()->route('teacher/list');
         } catch (\Exception $e) {
             DB::rollback();
-            Log::info($e);
-            Toastr::error('Failed to delete teacher record.', 'Error');
+            Toastr::error('Failed to delete teacher: ' . $e->getMessage(), 'Error');
             return redirect()->back();
         }
     }

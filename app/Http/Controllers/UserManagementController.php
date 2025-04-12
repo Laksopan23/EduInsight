@@ -96,26 +96,33 @@ class UserManagementController extends Controller
     /** user delete */
     public function userDelete(Request $request)
     {
+        $request->validate([
+            'user_id' => 'required|exists:users,user_id',
+        ]);
+
+        if (Session::get('role_name') !== 'Admin' && Session::get('role_name') !== 'Super Admin') {
+            Toastr::error('Unauthorized access!', 'Error');
+            return redirect()->back();
+        }
+
         DB::beginTransaction();
         try {
-            if (Session::get('role_name') === 'Super Admin' || Session::get('role_name') === 'Admin') {
-                if ($request->avatar == 'photo_defaults.jpg') {
-                    User::destroy($request->user_id);
-                } else {
-                    User::destroy($request->user_id);
-                    unlink('images/' . $request->avatar);
-                }
-            } else {
-                Toastr::error('User deleted fail :)', 'Error');
+            $user = User::where('user_id', $request->user_id)->firstOrFail();
+
+            // Delete avatar if not default
+            if ($user->avatar !== 'photo_defaults.jpg' && file_exists(public_path('images/' . $user->avatar))) {
+                unlink(public_path('images/' . $user->avatar));
             }
 
+            $user->delete(); // Cascade deletes teacher/student due to foreign key
+
             DB::commit();
-            Toastr::success('User deleted successfully :)', 'Success');
+            Toastr::success('User deleted successfully!', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
-            Log::info($e);
             DB::rollback();
-            Toastr::error('User deleted fail :)', 'Error');
+            Log::error('User delete failed: ' . $e->getMessage());
+            Toastr::error('Failed to delete user!', 'Error');
             return redirect()->back();
         }
     }

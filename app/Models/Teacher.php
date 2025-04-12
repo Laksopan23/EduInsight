@@ -2,26 +2,28 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Teacher extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
+        'user_id',
+        'user_id_fk',
         'full_name',
         'gender',
         'date_of_birth',
-        'phone_number', // Changed from mobile to match controller
-        'joining_date',
         'qualification',
         'experience',
-        'username',
+        'phone_number',
         'address',
         'city',
         'state',
         'zip_code',
         'country',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id_fk');
+    }
 }

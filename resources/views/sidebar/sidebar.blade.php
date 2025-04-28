@@ -7,6 +7,8 @@
                 </li>
 
                 <!-- Dashboard Menu -->
+                <!-- Admin: See all dashboards -->
+                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
                 <li class="submenu {{ set_active(['home', 'teacher/dashboard', 'student/dashboard', 'parent/dashboard']) }}">
                     <a href="#">
                         <i class="fas fa-tachometer-alt"></i>
@@ -15,11 +17,55 @@
                     </a>
                     <ul>
                         <li><a href="{{ route('home') }}" class="{{ set_active(['home']) }}">Admin Dashboard</a></li>
-                        <li><a href="{{ route('teacher/dashboard') }}" class="{{ set_active(['teacher/dashboard']) }}">Teacher Dashboard</a></li>
-                        <li><a href="{{ route('student/dashboard') }}" class="{{ set_active(['student/dashboard']) }}">Student Dashboard</a></li>
-                        <li><a href="{{ route('parent/dashboard') }}" class="{{ set_active(['parent/dashboard']) }}">Parent Dashboard</a></li>
+                        <li><a href="{{ route('teacher.dashboard') }}" class="{{ set_active(['teacher/dashboard']) }}">Teacher Dashboard</a></li>
+                        <li><a href="{{ route('student.dashboard') }}" class="{{ set_active(['student/dashboard']) }}">Student Dashboard</a></li>
+                        <li><a href="{{ route('parent.dashboard') }}" class="{{ set_active(['parent/dashboard']) }}">Parent Dashboard</a></li>
                     </ul>
                 </li>
+                @endif
+
+                <!-- Teacher: See Teacher and Student dashboards -->
+                @if (Session::get('role_name') === 'Teachers')
+                <li class="submenu {{ set_active(['teacher/dashboard', 'student/dashboard']) }}">
+                    <a href="#">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span> Dashboard</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul>
+                        <li><a href="{{ route('teacher.dashboard') }}" class="{{ set_active(['teacher/dashboard']) }}">Teacher Dashboard</a></li>
+                        <li><a href="{{ route('student.dashboard') }}" class="{{ set_active(['student/dashboard']) }}">Student Dashboard</a></li>
+                    </ul>
+                </li>
+                @endif
+
+                <!-- Student: See only Student dashboard -->
+                @if (Session::get('role_name') === 'Student')
+                <li class="submenu {{ set_active(['student/dashboard']) }}">
+                    <a href="#">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span> Dashboard</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul>
+                        <li><a href="{{ route('student.dashboard') }}" class="{{ set_active(['student/dashboard']) }}">Student Dashboard</a></li>
+                    </ul>
+                </li>
+                @endif
+
+                <!-- Parent: See only Parent dashboard -->
+                @if (Session::get('role_name') === 'Parent')
+                <li class="submenu {{ set_active(['parent/dashboard']) }}">
+                    <a href="#">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span> Dashboard</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul>
+                        <li><a href="{{ route('parent.dashboard') }}" class="{{ set_active(['parent/dashboard']) }}">Parent Dashboard</a></li>
+                    </ul>
+                </li>
+                @endif
 
                 <!-- User Management Menu for Admin and Super Admin -->
                 @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
@@ -35,37 +81,42 @@
                 </li>
                 @endif
 
-
                 <!-- Student Management Menu -->
-                <li class="submenu {{set_active(['student/list','student/grid','student/add/page'])}} {{ (request()->is('student/edit/*')) ? 'active' : '' }} {{ (request()->is('student/profile/*')) ? 'active' : '' }}">
-                    <a href="#"><i class="fas fa-graduation-cap"></i>
+                <li class="submenu {{ set_active(['student/list', 'student/grid', 'student/add/page', 'student/edit/*', 'student/profile/*']) }}">
+                    <a href="#">
+                        <i class="fas fa-graduation-cap"></i>
                         <span> Students</span>
                         <span class="menu-arrow"></span>
                     </a>
                     <ul>
-                        <li><a href="{{ route('student/list') }}" class="{{set_active(['student/list','student/grid'])}}">Student List</a></li>
-                        <li><a href="{{ route('student/add/page') }}" class="{{set_active(['student/add/page'])}}">Student Add</a></li>
-                        <li><a class="{{ (request()->is('student/edit/*')) ? 'active' : '' }}">Student Edit</a></li>
-                        <li><a href="" class="{{ (request()->is('student/profile/*')) ? 'active' : '' }}">Student View</a></li>
+                        <li><a href="{{ route('student/list') }}" class="{{ set_active(['student/list', 'student/grid']) }}">Student List</a></li>
+                        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
+                        <li><a href="{{ route('student/add/page') }}" class="{{ set_active(['student/add/page']) }}">Student Add</a></li>
+                        <li><a href="#" class="{{ request()->is('student/edit/*') ? 'active' : '' }}">Student Edit</a></li>
+                        @endif
+                        <li><a href="#" class="{{ request()->is('student/profile/*') ? 'active' : '' }}">Student View</a></li>
                     </ul>
                 </li>
 
                 <!-- Teacher Management Menu -->
-                <li class="submenu  {{set_active(['teacher/add','teacher/list','teacher/grid/page','teacher/edit'])}} {{ (request()->is('teacher/edit/*')) ? 'active' : '' }}">
-                    <a href="#"><i class="fas fa-chalkboard-teacher"></i>
+                <li class="submenu {{ set_active(['teacher/add', 'teacher/list', 'teacher/grid', 'teacher/edit/*']) }}">
+                    <a href="#">
+                        <i class="fas fa-chalkboard-teacher"></i>
                         <span> Teachers</span>
                         <span class="menu-arrow"></span>
                     </a>
                     <ul>
-                        <li><a href="{{ route('teacher/list') }}" class="{{set_active(['teacher/list','teacher/grid/page'])}}">Teacher List</a></li>
-                        <li><a href="teacher-details.html">Teacher View</a></li>
-                        <li><a href="{{ route('teacher/add') }}" class="{{set_active(['teacher/add'])}}">Teacher Add</a></li>
-                        <li><a class="{{ (request()->is('teacher/edit/*')) ? 'active' : '' }}">Teacher Edit</a></li>
+                        <li><a href="{{ route('teacher/list') }}" class="{{ set_active(['teacher/list', 'teacher/grid']) }}">Teacher List</a></li>
+                        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
+                        <li><a href="{{ route('teacher/add') }}" class="{{ set_active(['teacher/add']) }}">Teacher Add</a></li>
+                        <li><a href="#" class="{{ request()->is('teacher/edit/*') ? 'active' : '' }}">Teacher Edit</a></li>
+                        @endif
                     </ul>
                 </li>
 
                 <!-- Communication Menu -->
-                <li class="submenu {{ set_active(['communication/list', 'communication/grid', 'communication/add/page']) }} {{ request()->is('communication/edit/*') ? 'active' : '' }} {{ request()->is('communication/profile/*') ? 'active' : '' }}">
+                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin' || Session::get('role_name') === 'Teachers')
+                <li class="submenu {{ set_active(['communication/list', 'communication/grid', 'communication/add/page', 'communication/edit/*', 'communication/profile/*']) }}">
                     <a href="#">
                         <i class="fas fa-comments"></i>
                         <span> Communication</span>
@@ -78,10 +129,11 @@
                         <li><a href="#" class="{{ request()->is('communication/profile/*') ? 'active' : '' }}">View Communication</a></li>
                     </ul>
                 </li>
-
+                @endif
 
                 <!-- Subject Management Menu -->
-                <li class="submenu {{ set_active(['subject/list/page', 'subject/add/page']) }} {{ request()->is('subject/edit/*') ? 'active' : '' }}">
+                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin' || Session::get('role_name') === 'Teachers')
+                <li class="submenu {{ set_active(['subject/list/page', 'subject/add/page', 'subject/edit/*']) }}">
                     <a href="#">
                         <i class="fas fa-book-reader"></i>
                         <span> Subjects</span>
@@ -89,13 +141,17 @@
                     </a>
                     <ul>
                         <li><a href="{{ route('subject/list/page') }}" class="{{ set_active(['subject/list/page']) }}">Subject List</a></li>
+                        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
                         <li><a href="{{ route('subject/add/page') }}" class="{{ set_active(['subject/add/page']) }}">Subject Add</a></li>
-                        <li><a href="#">Subject Edit</a></li>
+                        <li><a href="#" class="{{ request()->is('subject/edit/*') ? 'active' : '' }}">Subject Edit</a></li>
+                        @endif
                     </ul>
                 </li>
+                @endif
 
-                <!-- Exam -->
-                <li class="submenu {{ set_active(['exam/list', 'exams/create', 'exam/edit/*']) }} {{ request()->is('exam/view/*') ? 'active' : '' }}">
+                <!-- Exam Menu -->
+                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin' || Session::get('role_name') === 'Teachers')
+                <li class="submenu {{ set_active(['exam/list', 'exams/create', 'exam/edit/*', 'exam/view/*']) }}">
                     <a href="#">
                         <i class="fas fa-clipboard-list"></i>
                         <span> Exams</span>
@@ -103,17 +159,18 @@
                     </a>
                     <ul>
                         <li><a href="{{ route('exam.list') }}" class="{{ set_active(['exam/list']) }}">Exam List</a></li>
+                        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
                         <li><a href="{{ route('exams.create') }}" class="{{ set_active(['exams/create']) }}">Create Exam</a></li>
-                        <li><a class="{{ request()->is('exam/edit/*') ? 'active' : '' }}">Edit Exam</a></li>
+                        <li><a href="#" class="{{ request()->is('exam/edit/*') ? 'active' : '' }}">Edit Exam</a></li>
+                        @endif
                         <li><a href="#" class="{{ request()->is('exam/view/*') ? 'active' : '' }}">View Exam</a></li>
                     </ul>
                 </li>
-
-
-
+                @endif
 
                 <!-- Invoice Management Menu -->
-                <li class="submenu {{ set_active(['invoice/list/page', 'invoice/paid/page', 'invoice/overdue/page', 'invoice/draft/page', 'invoice/recurring/page', 'invoice/cancelled/page', 'invoice/grid/page', 'invoice/add/page', 'invoice/view/page', 'invoice/settings/page', 'invoice/settings/tax/page', 'invoice/settings/bank/page']) }}" {{ request()->is('invoice/edit/*') ? 'active' : '' }}">
+                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
+                <li class="submenu {{ set_active(['invoice/list/page', 'invoice/paid/page', 'invoice/overdue/page', 'invoice/draft/page', 'invoice/recurring/page', 'invoice/cancelled/page', 'invoice/grid/page', 'invoice/add/page', 'invoice/view/*', 'invoice/edit/*', 'invoice/settings/page', 'invoice/settings/tax/page', 'invoice/settings/bank/page']) }}">
                     <a href="#">
                         <i class="fas fa-clipboard"></i>
                         <span> Invoices</span>
@@ -128,8 +185,10 @@
                         <li><a href="{{ route('invoice/settings/page') }}" class="{{ set_active(['invoice/settings/page']) }}">Invoices Settings</a></li>
                     </ul>
                 </li>
+                @endif
 
                 <!-- Accounts Management Menu -->
+                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
                 <li class="submenu {{ set_active(['account/fees/collections/page', 'add/fees/collection/page']) }}">
                     <a href="#">
                         <i class="fas fa-file-invoice-dollar"></i>
@@ -138,32 +197,21 @@
                     </a>
                     <ul>
                         <li><a href="{{ route('account/fees/collections/page') }}" class="{{ set_active(['account/fees/collections/page']) }}">Fees Collection</a></li>
-                        <li><a href="#">Expenses</a></li>
-                        <li><a href="#">Salary</a></li>
                         <li><a href="{{ route('add/fees/collection/page') }}" class="{{ set_active(['add/fees/collection/page']) }}">Add Fees</a></li>
-                        <li><a href="#">Add Expenses</a></li>
-                        <li><a href="#">Add Salary</a></li>
                     </ul>
                 </li>
+                @endif
 
-                <!-- Other Menus -->
-                <li>
-                    <a href="holiday.html"><i class="fas fa-holly-berry"></i> <span>Holiday</span></a>
+                <!-- Holiday Menu -->
+                <li class="{{ set_active(['holiday']) }}">
+                    <a href="#">
+                        <i class="fas fa-holly-berry"></i>
+                        <span>Holiday</span>
+                    </a>
                 </li>
-                <!-- <li>
-                    <a href="fees.html"><i class="fas fa-comment-dollar"></i> <span>Fees</span></a>
-                </li>
-                <li>
-                    <a href="exam.html"><i class="fas fa-clipboard-list"></i> <span>Exam list</span></a>
-                </li>
-                <li>
-                    <a href="event.html"><i class="fas fa-calendar-day"></i> <span>Events</span></a>
-                </li>
-                <li>
-                    <a href="library.html"><i class="fas fa-book"></i> <span>Library</span></a>
-                </li> -->
 
                 <!-- Settings Menu -->
+                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
                 <li class="submenu {{ set_active(['setting/page']) }}">
                     <a href="#">
                         <i class="fas fa-cog"></i>
@@ -174,6 +222,7 @@
                         <li><a href="{{ route('setting/page') }}" class="{{ set_active(['setting/page']) }}">General Settings</a></li>
                     </ul>
                 </li>
+                @endif
             </ul>
         </div>
     </div>

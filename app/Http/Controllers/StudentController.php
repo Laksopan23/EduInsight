@@ -77,6 +77,7 @@ class StudentController extends Controller
             $upload_file = Str::uuid() . '.' . $request->upload->extension();
             $request->upload->storeAs('public/student-photos', $upload_file);
 
+            //Student Creation Controller
             $student = Student::create([
                 'user_id' => $user->user_id,
                 'user_id_fk' => $user->id,

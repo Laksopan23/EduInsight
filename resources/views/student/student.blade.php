@@ -97,7 +97,7 @@
                                                 <a href="{{ url('student/profile/'.$list->id) }}">{{ $list->first_name }} {{ $list->last_name }}</a>
                                             </h2>
                                         </td>
-                                        <td>{{ $list->user->email }}</td>
+                                        <td>{{ $list->email }}</td>
                                         <td>{{ $list->class }} {{ $list->section }}</td>
                                         <td>{{ $list->date_of_birth }}</td>
                                         <td>{{ $list->phone_number }}</td>

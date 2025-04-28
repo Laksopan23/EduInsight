@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -29,14 +29,41 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request)
     {
+        // Authenticate user
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        // Store role_name in session
-        Session::put('role_name', Auth::user()->role_name);
+        // Ensure role_name is set in session
+        $role = Auth::user()->role_name ?? 'Unknown';
+        Session::put('role_name', $role);
+        Session::save(); // Force session save
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        // Log for debugging
+        Log::info('User logged in', [
+            'user_id' => Auth::id(),
+            'role' => $role,
+            'email' => Auth::user()->email
+        ]);
+
+        // Role-based redirect
+        switch (strtolower($role)) { // Case-insensitive check
+            case 'admin':
+            case 'super admin':
+                Log::info('Redirecting to Admin Dashboard', ['route' => 'home']);
+                return redirect()->route('home');
+            case 'teachers':
+                Log::info('Redirecting to Teacher Dashboard', ['route' => 'teacher.dashboard']);
+                return redirect()->route('teacher.dashboard');
+            case 'student':
+                Log::info('Redirecting to Student Dashboard', ['route' => 'student.dashboard']);
+                return redirect()->route('student.dashboard');
+            case 'parent':
+                Log::info('Redirecting to Parent Dashboard', ['route' => 'parent.dashboard']);
+                return redirect()->route('parent.dashboard');
+            default:
+                Log::warning('Unknown role detected, falling back to login', ['role' => $role]);
+                return redirect()->route('login'); // Fallback to login
+        }
     }
 
     /**
@@ -48,11 +75,8 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request)
     {
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
         return redirect('/');
     }
 }

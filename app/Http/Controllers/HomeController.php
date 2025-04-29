@@ -40,6 +40,8 @@ class HomeController extends Controller
                     return redirect()->route('student.dashboard');
                 case 'parent':
                     return redirect()->route('parent.dashboard');
+                case 'guardian':
+                    return redirect()->route('guardian.dashboard');
                 default:
                     Toastr::error('Access denied da!', 'Error');
                     Log::warning('Unknown role accessing home, redirecting to login', ['role' => $role]);
@@ -118,5 +120,25 @@ class HomeController extends Controller
         }
 
         return view('dashboard.parent_dashboard');
+    }
+
+    /**
+     * Show the Guardian Dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function guardianDashboardIndex()
+    {
+        $role = Session::get('role_name') ?? 'Unknown';
+        Log::info('HomeController::guardianDashboardIndex accessed', ['role' => $role, 'user_id' => Auth::id()]);
+
+        // Only Admin/Super Admin/Guardian can access
+        if (!in_array(strtolower($role), ['admin', 'super admin', 'guardian'])) {
+            Toastr::error('Access denied da!', 'Error');
+            Log::warning('Unauthorized access to guardian dashboard', ['role' => $role]);
+            return redirect()->route('home');
+        }
+
+        return view('dashboard.guardian_dashboard');
     }
 }

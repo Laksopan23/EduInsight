@@ -28,4 +28,9 @@ class Student extends Model
     {
         return $this->belongsTo(User::class, 'user_id_fk');
     }
+
+    public function guardians()
+    {
+        return $this->belongsToMany(User::class, 'guardian_student', 'student_id', 'guardian_id');
+    }
 }

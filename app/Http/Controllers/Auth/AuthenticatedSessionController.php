@@ -57,9 +57,9 @@ class AuthenticatedSessionController extends Controller
             case 'student':
                 Log::info('Redirecting to Student Dashboard', ['route' => 'student.dashboard']);
                 return redirect()->route('student.dashboard');
-            case 'parent':
-                Log::info('Redirecting to Parent Dashboard', ['route' => 'parent.dashboard']);
-                return redirect()->route('parent.dashboard');
+            case 'guardian':
+                Log::info('Redirecting to Guardian Dashboard', ['route' => 'student.dashboard']);
+                return redirect()->route('student.dashboard');
             default:
                 Log::warning('Unknown role detected, falling back to login', ['role' => $role]);
                 return redirect()->route('login'); // Fallback to login

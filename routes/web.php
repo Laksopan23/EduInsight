@@ -1,7 +1,5 @@
 <?php
 
-
-
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Request;
 use App\Http\Controllers\Auth\LoginController;
@@ -16,22 +14,18 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\AccountsController;
 use App\Http\Controllers\CommunicationController;
 use App\Http\Controllers\Setting;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\ParentController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\GuardianController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
+| Here is where you can register web routes for your application.
 */
 
-/** for sidebar menu active */
 if (!function_exists('set_active')) {
     function set_active($route)
     {
@@ -49,13 +43,14 @@ Route::get('/', function () {
 });
 
 Route::group(['middleware' => 'auth'], function () {
-    // Main Dashboard Routes
+    // Dashboard Routes
     Route::controller(HomeController::class)->group(function () {
         Route::get('/home', 'index')->name('home');
         Route::get('user/profile/page', 'userProfile')->name('user/profile/page');
         Route::get('teacher/dashboard', 'teacherDashboardIndex')->name('teacher.dashboard');
         Route::get('student/dashboard', 'studentDashboardIndex')->name('student.dashboard');
         Route::get('parent/dashboard', 'parentDashboardIndex')->name('parent.dashboard');
+        Route::get('guardian/dashboard', 'guardianDashboardIndex')->name('guardian.dashboard');
     });
 
     // User Management
@@ -66,6 +61,16 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('user/update', 'userUpdate')->name('user/update');
         Route::post('user/delete', 'userDelete')->name('user/delete');
         Route::get('get-users-data', 'getUsersData')->name('get-users-data');
+    });
+
+    // Guardians
+    Route::controller(GuardianController::class)->group(function () {
+        Route::get('guardian/list', 'index')->name('guardian/list');
+        Route::get('guardian/add', 'add')->name('guardian/add');
+        Route::post('guardian/save', 'save')->name('guardian/save');
+        Route::get('guardian/edit/{id}', 'edit')->name('guardian/edit');
+        Route::post('guardian/update', 'update')->name('guardian/update');
+        Route::post('guardian/delete', 'delete')->name('guardian/delete');
     });
 
     // Settings

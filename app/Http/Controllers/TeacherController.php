@@ -35,6 +35,7 @@ class TeacherController extends Controller
         $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
             'gender' => 'required|string|in:Male,Female,Others',
             'experience' => 'required|string',
             'date_of_birth' => 'required|date',
@@ -62,7 +63,7 @@ class TeacherController extends Controller
                 'date_of_birth' => $request->date_of_birth,
                 'role_name' => 'Teachers',
                 'status' => 'Active',
-                'password' => Hash::make('default123'), // Change as needed
+                'password' => Hash::make($request->password),
                 'avatar' => 'photo_defaults.jpg',
             ]);
 
@@ -104,6 +105,7 @@ class TeacherController extends Controller
             'id' => 'required|exists:teachers,id',
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $request->user_id . ',user_id',
+            'password' => 'nullable|string|min:8',
             'gender' => 'required|string|in:Male,Female,Others',
             'experience' => 'required|string',
             'date_of_birth' => 'required|date',
@@ -126,12 +128,18 @@ class TeacherController extends Controller
             $teacher = Teacher::findOrFail($request->id);
             $user = $teacher->user;
 
-            $user->update([
+            $userData = [
                 'name' => $request->full_name,
                 'email' => $request->email,
                 'phone_number' => $request->phone_number,
                 'date_of_birth' => $request->date_of_birth,
-            ]);
+            ];
+
+            if ($request->filled('password')) {
+                $userData['password'] = Hash::make($request->password);
+            }
+
+            $user->update($userData);
 
             $teacher->update([
                 'full_name' => $request->full_name,
@@ -173,8 +181,12 @@ class TeacherController extends Controller
             $teacher = Teacher::findOrFail($request->id);
             $user = $teacher->user;
 
-            $teacher->delete(); // Cascade deletes user due to foreign key
-            // User delete handled by cascade
+            // Explicitly delete the user record if cascade isn't working
+            if ($user) {
+                $user->delete();
+            }
+
+            $teacher->delete();
 
             DB::commit();
             Toastr::success('Teacher deleted successfully!', 'Success');

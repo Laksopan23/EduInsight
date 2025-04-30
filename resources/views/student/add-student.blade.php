@@ -55,6 +55,15 @@
                                 </div>
                                 <div class="col-12 col-sm-4">
                                     <div class="form-group local-forms">
+                                        <label>Password <span class="login-danger">*</span></label>
+                                        <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" placeholder="Enter Password">
+                                        @error('password')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <div class="form-group local-forms">
                                         <label>Gender <span class="login-danger">*</span></label>
                                         <select class="form-control select @error('gender') is-invalid @enderror" name="gender">
                                             <option selected disabled>Select Gender</option>
@@ -123,9 +132,12 @@
                                         <label>Class <span class="login-danger">*</span></label>
                                         <select class="form-control select @error('class') is-invalid @enderror" name="class">
                                             <option selected disabled>Please Select Class</option>
-                                            <option value="12" {{ old('class') == '12' ? 'selected' : '' }}>12</option>
-                                            <option value="11" {{ old('class') == '11' ? 'selected' : '' }}>11</option>
+                                            <option value="6" {{ old('class') == '6' ? 'selected' : '' }}>6</option>
+                                            <option value="7" {{ old('class') == '7' ? 'selected' : '' }}>7</option>
+                                            <option value="8" {{ old('class') == '8' ? 'selected' : '' }}>8</option>
+                                            <option value="9" {{ old('class') == '9' ? 'selected' : '' }}>9</option>
                                             <option value="10" {{ old('class') == '10' ? 'selected' : '' }}>10</option>
+                                            <option value="11" {{ old('class') == '11' ? 'selected' : '' }}>11</option>
                                         </select>
                                         @error('class')
                                             <span class="invalid-feedback">{{ $message }}</span>

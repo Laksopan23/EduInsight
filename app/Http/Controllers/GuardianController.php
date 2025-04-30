@@ -7,6 +7,8 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class GuardianController extends Controller
 {
@@ -90,11 +92,22 @@ class GuardianController extends Controller
             'id' => 'required|exists:users,id',
         ]);
 
-        $guardian = User::findOrFail($request->id);
-        $guardian->students()->detach();
-        $guardian->delete();
+        DB::beginTransaction();
+        try {
+            $guardian = User::findOrFail($request->id);
+            Log::info('Deleting guardian', ['guardian_id' => $guardian->id]);
 
-        Toastr::success('Guardian deleted successfully', 'Success');
-        return redirect()->route('guardian/list');
+            $guardian->students()->detach();
+            $guardian->delete();
+
+            DB::commit();
+            Toastr::success('Guardian deleted successfully', 'Success');
+            return redirect()->route('guardian/list');
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Guardian delete failed: ' . $e->getMessage());
+            Toastr::error('Failed to delete guardian. Please try again.', 'Error');
+            return redirect()->back();
+        }
     }
 }

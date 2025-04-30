@@ -18,7 +18,6 @@
                         <li><a href="{{ route('home') }}" class="{{ set_active(['home']) }}">Admin Dashboard</a></li>
                         <li><a href="{{ route('teacher.dashboard') }}" class="{{ set_active(['teacher/dashboard']) }}">Teacher Dashboard</a></li>
                         <li><a href="{{ route('student.dashboard') }}" class="{{ set_active(['student/dashboard']) }}">Student Dashboard</a></li>
-                        <li><a href="{{ route('parent.dashboard') }}" class="{{ set_active(['parent/dashboard']) }}">Parent Dashboard</a></li>
                         <li><a href="{{ route('guardian.dashboard') }}" class="{{ set_active(['guardian/dashboard']) }}">Guardian Dashboard</a></li>
                     </ul>
                 </li>
@@ -162,7 +161,6 @@
                 @endif
 
                 <!-- Subjects -->
-                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin' || Session::get('role_name') === 'Teachers')
                 <li class="submenu {{ set_active(['subject/list/page', 'subject/add/page', 'subject/edit/*']) }}">
                     <a href="#">
                         <i class="fas fa-book-reader"></i>
@@ -170,12 +168,13 @@
                         <span class="menu-arrow"></span>
                     </a>
                     <ul>
-                        <li><a href="{{ route('guardian/list') }}" class="{{ set_active(['guardian/list']) }}">Guardian List</a></li>
-                        <li><a href="{{ route('guardian/add') }}" class="{{ set_active(['guardian/add']) }}">Guardian Add</a></li>
-                        <li><a href="#" class="{{ request()->is('guardian/edit/*') ? 'active' : '' }}">Guardian Edit</a></li>
+                        <li><a href="{{ route('subject/list/page') }}" class="{{ set_active(['subject/list/page']) }}">Subject List</a></li>
+                        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
+                        <li><a href="{{ route('subject/add/page') }}" class="{{ set_active(['subject/add/page']) }}">Subject Add</a></li>
+                        <li><a href="#" class="{{ request()->is('subject/edit/*') ? 'active' : '' }}">Subject Edit</a></li>
+                        @endif
                     </ul>
                 </li>
-                @endif
 
                 <!-- Exams -->
                 @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin' || Session::get('role_name') === 'Teachers')

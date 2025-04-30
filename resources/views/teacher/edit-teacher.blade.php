@@ -46,6 +46,15 @@
                                 </div>
                                 <div class="col-12 col-sm-4">
                                     <div class="form-group local-forms">
+                                        <label>Password</label>
+                                        <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" placeholder="Enter New Password (Leave blank to keep current)">
+                                        @error('password')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <div class="form-group local-forms">
                                         <label>Gender <span class="login-danger">*</span></label>
                                         <select class="form-control select @error('gender') is-invalid @enderror" name="gender">
                                             <option selected disabled>Select Gender</option>

@@ -115,11 +115,11 @@ Route::group(['middleware' => 'auth'], function () {
     // Subjects
     Route::controller(SubjectController::class)->group(function () {
         Route::get('subject/list/page', 'subjectList')->name('subject/list/page');
-        Route::get('subject/add/page', 'subjectAdd')->name('subject/add/page');
-        Route::post('subject/save', 'saveRecord')->name('subject/save');
-        Route::post('subject/update', 'updateRecord')->name('subject/update');
-        Route::post('subject/delete', 'deleteRecord')->name('subject/delete');
-        Route::get('subject/edit/{subject_id}', 'subjectEdit')->name('subject/edit');
+        Route::get('subject/add/page', 'subjectAdd')->middleware('admin')->name('subject/add/page');
+        Route::post('subject/save', 'saveRecord')->middleware('admin')->name('subject/save');
+        Route::get('subject/edit/{id}', 'subjectEdit')->middleware('admin')->name('subject/edit');
+        Route::post('subject/update', 'updateRecord')->middleware('admin')->name('subject/update');
+        Route::post('subject/delete', 'deleteRecord')->middleware('admin')->name('subject/delete');
     });
 
     // Invoices

@@ -176,24 +176,6 @@
                     </ul>
                 </li>
 
-                <!-- Exams -->
-                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin' || Session::get('role_name') === 'Teachers')
-                <li class="submenu {{ set_active(['exam/list', 'exams/create', 'exam/edit/*', 'exam/view/*']) }}">
-                    <a href="#">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span> Exams</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <ul>
-                        <li><a href="{{ route('exam.list') }}" class="{{ set_active(['exam/list']) }}">Exam List</a></li>
-                        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
-                        <li><a href="{{ route('exams.create') }}" class="{{ set_active(['exams/create']) }}">Create Exam</a></li>
-                        <li><a href="#" class="{{ request()->is('exam/edit/*') ? 'active' : '' }}">Edit Exam</a></li>
-                        @endif
-                        <li><a href="#" class="{{ request()->is('exam/view/*') ? 'active' : '' }}">View Exam</a></li>
-                    </ul>
-                </li>
-                @endif
 
                 <!-- Invoices -->
                 @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')

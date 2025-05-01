@@ -148,16 +148,6 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('add/fees/collection/page', 'addFeesCollection')->name('add/fees/collection/page');
         Route::post('fees/collection/save', 'saveRecord')->name('fees/collection/save');
     });
-
-    // Exams
-    Route::resource('exams', ExamController::class);
-    Route::post('exams/{exam}/addResult', [ExamController::class, 'addResult'])->name('exams.addResult');
-    Route::get('exams/create', [ExamController::class, 'create'])->name('exams.create');
-    Route::post('exams/store', [ExamController::class, 'store'])->name('exams.store');
-    Route::get('exam/list', [ExamController::class, 'index'])->name('exam.list');
-    Route::get('exam/edit/{exam}', [ExamController::class, 'edit'])->name('exam.edit');
-    Route::post('exam/update', [ExamController::class, 'update'])->name('exam.update');
-    Route::delete('exam/delete/{exam}', [ExamController::class, 'destroy'])->name('exam.delete');
 });
 
 // Auth Routes

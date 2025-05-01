@@ -59,8 +59,12 @@
                                         <td>{{ $guardian->phone_number }}</td>
                                         <td>
                                             @foreach ($guardian->students as $student)
-                                                {{ $student->first_name }} {{ $student->last_name }} ({{ $student->admission_id }})
-                                                @if (!$loop->last), @endif
+                                                <div>
+                                                    {{ $student->first_name }} {{ $student->last_name }} ({{ $student->admission_id }})
+                                                    @if ($student->pivot->relationship)
+                                                        - {{ $student->pivot->relationship }}
+                                                    @endif
+                                                </div>
                                             @endforeach
                                         </td>
                                         <td class="text-end">

@@ -57,7 +57,7 @@
                                                     <i class="far fa-edit me-2"></i> Edit
                                                 </a>
                                                 <a class="btn btn-sm bg-danger-light communication_delete" data-bs-toggle="modal" data-bs-target="#communicationDelete">
-                                                    <i class="far fa-trash-alt me-2"></i> Delete
+                                                    <i class="far fa-trash-alt me-2"></i>
                                                 </a>
                                             </div>
                                         </td>

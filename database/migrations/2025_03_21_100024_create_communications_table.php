@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('sender');
             $table->string('receiver');
             $table->string('meeting_link')->nullable(); // Added for live meeting link
+            $table->date('schedule_date')->nullable();  // New column for date
+            $table->time('schedule_time')->nullable();  // New column for time
             $table->timestamps();
         });
     }

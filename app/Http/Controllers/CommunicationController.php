@@ -8,6 +8,8 @@ use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class CommunicationController extends Controller
 {
@@ -15,6 +17,7 @@ class CommunicationController extends Controller
     public function communicationList()
     {
         $communicationList = Communication::all();
+        Log::info('Communication list loaded', ['count' => $communicationList->count()]);
         return view('communication.communication-list', compact('communicationList'));
     }
 
@@ -46,6 +49,7 @@ class CommunicationController extends Controller
         $code = $request->query('code');
         if (!$code) {
             Toastr::error('Zoom authorization failed: No code received.', 'Error');
+            Log::error('Zoom authorization failed: No code received.');
             return redirect()->route('communication/add/page');
         }
 
@@ -65,16 +69,18 @@ class CommunicationController extends Controller
                 Session::put('zoom_access_token', $tokenData['access_token']);
                 Session::put('zoom_refresh_token', $tokenData['refresh_token']);
                 Session::put('zoom_token_expires', now()->addSeconds($tokenData['expires_in']));
-
+                Log::info('Zoom token stored successfully', ['access_token' => $tokenData['access_token']]);
                 Toastr::success('Zoom authorization successful!', 'Success');
             } else {
                 Toastr::error('Failed to get Zoom access token: ' . $response->body(), 'Error');
+                Log::error('Failed to get Zoom access token', ['response' => $response->body()]);
             }
         } catch (\Exception $e) {
             Toastr::error('Error during Zoom authorization: ' . $e->getMessage(), 'Error');
+            Log::error('Error during Zoom authorization', ['message' => $e->getMessage()]);
         }
 
-        return redirect()->route('communication/add/page');
+        return redirect()->route('communication/add/page')->with('zoom_authorized', true);
     }
 
     // Refresh Zoom access token if expired
@@ -82,6 +88,7 @@ class CommunicationController extends Controller
     {
         $refreshToken = Session::get('zoom_refresh_token');
         if (!$refreshToken) {
+            Log::warning('No refresh token available for Zoom.');
             return null;
         }
 
@@ -99,13 +106,16 @@ class CommunicationController extends Controller
                 Session::put('zoom_access_token', $tokenData['access_token']);
                 Session::put('zoom_refresh_token', $tokenData['refresh_token']);
                 Session::put('zoom_token_expires', now()->addSeconds($tokenData['expires_in']));
+                Log::info('Zoom token refreshed successfully', ['access_token' => $tokenData['access_token']]);
                 return $tokenData['access_token'];
             } else {
                 Toastr::error('Failed to refresh Zoom token: ' . $response->body(), 'Error');
+                Log::error('Failed to refresh Zoom token', ['response' => $response->body()]);
                 return null;
             }
         } catch (\Exception $e) {
             Toastr::error('Error refreshing Zoom token: ' . $e->getMessage(), 'Error');
+            Log::error('Error refreshing Zoom token', ['message' => $e->getMessage()]);
             return null;
         }
     }
@@ -124,22 +134,24 @@ class CommunicationController extends Controller
     }
 
     // Generate a meeting link using Zoom API
-    private function generateMeetingLink($title)
+    private function generateMeetingLink($title, $date, $time)
     {
         $accessToken = $this->getAccessToken();
         if (!$accessToken) {
             Toastr::error('Zoom authentication required. Please authorize Zoom first.', 'Error');
+            Log::warning('No valid Zoom access token available.');
             return null;
         }
 
         try {
+            $startTime = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $time)->toIso8601String();
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $accessToken,
                 'Content-Type' => 'application/json',
             ])->post('https://api.zoom.us/v2/users/me/meetings', [
                 'topic' => $title,
                 'type' => 2, // Scheduled meeting
-                'start_time' => now()->addHour()->toIso8601String(),
+                'start_time' => $startTime,
                 'duration' => 60,
                 'timezone' => 'Asia/Kolkata',
                 'settings' => [
@@ -152,13 +164,16 @@ class CommunicationController extends Controller
 
             if ($response->successful()) {
                 $data = $response->json();
+                Log::info('Meeting link generated successfully', ['join_url' => $data['join_url']]);
                 return $data['join_url'];
             } else {
                 Toastr::error('Failed to create meeting: ' . $response->body(), 'Error');
+                Log::error('Failed to create meeting', ['response' => $response->body()]);
                 return null;
             }
         } catch (\Exception $e) {
             Toastr::error('Error connecting to Zoom API: ' . $e->getMessage(), 'Error');
+            Log::error('Error connecting to Zoom API', ['message' => $e->getMessage()]);
             return null;
         }
     }
@@ -167,10 +182,12 @@ class CommunicationController extends Controller
     public function communicationSave(Request $request)
     {
         $request->validate([
-            'title'    => 'required|string',
-            'message'  => 'required|string',
-            'sender'   => 'required|string',
-            'receiver' => 'required|string',
+            'title'          => 'required|string',
+            'message'        => 'required|string',
+            'sender'         => 'required|string',
+            'receiver'       => 'required|string',
+            'schedule_date'  => 'nullable|date',
+            'schedule_time'  => 'nullable|date_format:H:i',
             'schedule_meeting' => 'nullable|boolean',
         ]);
 
@@ -181,23 +198,29 @@ class CommunicationController extends Controller
             $communication->message  = $request->message;
             $communication->sender   = $request->sender;
             $communication->receiver = $request->receiver;
+            $communication->schedule_date = $request->schedule_date;
+            $communication->schedule_time = $request->schedule_time;
 
             if ($request->schedule_meeting) {
-                $meetingLink = $this->generateMeetingLink($request->title);
+                $meetingLink = $this->generateMeetingLink($request->title, $request->schedule_date, $request->schedule_time);
                 if ($meetingLink) {
                     $communication->meeting_link = $meetingLink;
+                    Log::info('Meeting link saved with communication', ['communication_id' => $communication->id, 'meeting_link' => $meetingLink]);
                 } else {
                     Toastr::warning('Meeting not scheduled due to an error. Communication saved.', 'Warning');
+                    Log::warning('Failed to schedule meeting for communication', ['communication_id' => $communication->id]);
                 }
             }
 
             $communication->save();
+            Log::info('Communication saved successfully', ['communication_id' => $communication->id]);
 
             Toastr::success('Communication added successfully :)', 'Success');
             DB::commit();
             return redirect()->route('communication/list');
         } catch (\Exception $e) {
             DB::rollback();
+            Log::error('Failed to save communication', ['message' => $e->getMessage()]);
             Toastr::error('Failed to add communication :)', 'Error');
             return redirect()->back();
         }
@@ -214,11 +237,13 @@ class CommunicationController extends Controller
     public function communicationUpdate(Request $request)
     {
         $request->validate([
-            'id'       => 'required|integer',
-            'title'    => 'required|string',
-            'message'  => 'required|string',
-            'sender'   => 'required|string',
-            'receiver' => 'required|string',
+            'id'             => 'required|integer',
+            'title'          => 'required|string',
+            'message'        => 'required|string',
+            'sender'         => 'required|string',
+            'receiver'       => 'required|string',
+            'schedule_date'  => 'nullable|date',
+            'schedule_time'  => 'nullable|date_format:H:i',
             'schedule_meeting' => 'nullable|boolean',
         ]);
 
@@ -226,18 +251,22 @@ class CommunicationController extends Controller
         try {
             $communication = Communication::findOrFail($request->id);
             $communication->update([
-                'title'    => $request->title,
-                'message'  => $request->message,
-                'sender'   => $request->sender,
-                'receiver' => $request->receiver,
+                'title'          => $request->title,
+                'message'        => $request->message,
+                'sender'         => $request->sender,
+                'receiver'       => $request->receiver,
+                'schedule_date'  => $request->schedule_date,
+                'schedule_time'  => $request->schedule_time,
             ]);
 
             if ($request->schedule_meeting && !$communication->meeting_link) {
-                $meetingLink = $this->generateMeetingLink($request->title);
+                $meetingLink = $this->generateMeetingLink($request->title, $request->schedule_date, $request->schedule_time);
                 if ($meetingLink) {
                     $communication->update(['meeting_link' => $meetingLink]);
+                    Log::info('Meeting link updated for communication', ['communication_id' => $communication->id, 'meeting_link' => $meetingLink]);
                 } else {
                     Toastr::warning('Meeting not scheduled due to an error.', 'Warning');
+                    Log::warning('Failed to schedule meeting for communication update', ['communication_id' => $communication->id]);
                 }
             }
 
@@ -246,6 +275,7 @@ class CommunicationController extends Controller
             return redirect()->route('communication/list');
         } catch (\Exception $e) {
             DB::rollback();
+            Log::error('Failed to update communication', ['message' => $e->getMessage()]);
             Toastr::error('Failed to update communication :)', 'Error');
             return redirect()->back();
         }
@@ -269,12 +299,14 @@ class CommunicationController extends Controller
         try {
             $communication = Communication::findOrFail($request->id);
             $communication->delete();
+            Log::info('Communication deleted successfully', ['communication_id' => $request->id]);
 
             Toastr::success('Communication deleted successfully :)', 'Success');
             DB::commit();
             return redirect()->route('communication/list');
         } catch (\Exception $e) {
             DB::rollback();
+            Log::error('Failed to delete communication', ['message' => $e->getMessage()]);
             Toastr::error('Failed to delete communication :)', 'Error');
             return redirect()->back();
         }

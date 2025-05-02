@@ -30,6 +30,8 @@
                                         <th>Title</th>
                                         <th>Sender</th>
                                         <th>Receiver</th>
+                                        <th>Schedule Date</th>
+                                        <th>Schedule Time</th>
                                         <th>Meeting Link</th>
                                         <th class="text-end">Actions</th>
                                     </tr>
@@ -41,6 +43,8 @@
                                         <td>{{ $communication->title }}</td>
                                         <td>{{ $communication->sender }}</td>
                                         <td>{{ $communication->receiver }}</td>
+                                        <td>{{ $communication->schedule_date ?? 'N/A' }}</td>
+                                        <td>{{ $communication->schedule_time ?? 'N/A' }}</td>
                                         <td>
                                             @if($communication->meeting_link)
                                                 <a href="{{ $communication->meeting_link }}" target="_blank" class="btn btn-sm btn-info">Join Meeting</a>

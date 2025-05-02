@@ -43,6 +43,18 @@
                                         <input type="text" name="receiver" id="receiver" class="form-control" value="{{ $communication->receiver }}" required>
                                     </div>
                                 </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label for="schedule_date">Schedule Date</label>
+                                        <input type="date" name="schedule_date" id="schedule_date" class="form-control" value="{{ $communication->schedule_date }}">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label for="schedule_time">Schedule Time</label>
+                                        <input type="time" name="schedule_time" id="schedule_time" class="form-control" value="{{ $communication->schedule_time }}">
+                                    </div>
+                                </div>
                                 <div class="col-lg-12">
                                     <div class="form-group">
                                         <label for="message">Message <span class="text-danger">*</span></label>
@@ -55,7 +67,7 @@
                                             <input type="checkbox" name="schedule_meeting" id="schedule_meeting" value="1" {{ $communication->meeting_link ? 'checked' : '' }}>
                                             Schedule a Live Meeting
                                         </label>
-                                        @if (!Session::has('zoom_access_token') && !$communication->meeting_link)
+                                        @if (!Session::has('zoom_access_token') && !session()->has('zoom_authorized') && !$communication->meeting_link)
                                         <p class="text-muted">
                                             (Requires Zoom authorization: <a href="{{ route('zoom.authorize') }}" class="btn btn-sm btn-info">Authorize Zoom</a>)
                                         </p>

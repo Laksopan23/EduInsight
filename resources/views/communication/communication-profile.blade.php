@@ -26,6 +26,8 @@
                                 <p><strong>Message:</strong> {{ $communication->message }}</p>
                                 <p><strong>Sender:</strong> {{ $communication->sender }}</p>
                                 <p><strong>Receiver:</strong> {{ $communication->receiver }}</p>
+                                <p><strong>Schedule Date:</strong> {{ $communication->schedule_date ?? 'N/A' }}</p>
+                                <p><strong>Schedule Time:</strong> {{ $communication->schedule_time ?? 'N/A' }}</p>
                                 <p><strong>Meeting Link:</strong>
                                     @if($communication->meeting_link)
                                         <a href="{{ $communication->meeting_link }}" target="_blank" class="btn btn-sm btn-info">Join Meeting</a>

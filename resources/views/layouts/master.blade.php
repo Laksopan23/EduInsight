@@ -6,14 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
     <title>
         @if (Session::has('role_name'))
-            {{ ucfirst(Session::get('Admin')) }} Admin Dashboard
-        @elseif(Session::has('role_name'))
-            {{ ucfirst(Session::get('Teachers')) }} Teacher Dashboard
-        @elseif(Session::has('role_name'))
-            {{ ucfirst(Session::get('Student')) }} Student Dashboard
-        @elseif(Session::has('role_name'))
-            {{ ucfirst(Session::get('Guardian')) }} Parent Dashboard
-        @endif
+        @php
+            $role = Session::get('role_name');
+            $roles = DB::table('role_type_users')->pluck('role_type')->toArray();
+            $title = 'Dashboard';
+            if (in_array($role, $roles)) {
+                $title = ucfirst($role) . ' ' . $title;
+            } else {
+                $title = 'Admin ' . $title; // Default fallback
+            }
+        @endphp
+        {{ $title }}
+    @else
+        Default Dashboard
+    @endif
     </title>
     <link rel="shortcut icon" href="{{ URL::to('assets/img/favicon.png') }}">
     <link rel="stylesheet" href="{{ URL::to('assets/plugins/bootstrap/css/bootstrap.min.css') }}">

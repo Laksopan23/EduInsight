@@ -15,8 +15,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
-
-
 class UserManagementController extends Controller
 {
     /** index page */
@@ -58,7 +56,6 @@ class UserManagementController extends Controller
                         $image->move(public_path('/images/'), $image_name);
                     }
                 } else {
-
                     if ($image != '') {
                         unlink('images/' . $image_name);
                         $image_name = rand() . '.' . $image->getClientOriginalExtension();
@@ -156,58 +153,60 @@ class UserManagementController extends Controller
         $columnIndex     = $columnIndex_arr[0]['column']; // Column index
         $columnName      = $columnName_arr[$columnIndex]['data']; // Column name
         $columnSortOrder = $order_arr[0]['dir']; // asc or desc
-        $searchValue     = $search_arr['value']; // Search value
+        $searchValue     = $search_arr['value']; // Global search value
 
-        $users =  DB::table('users');
-        $totalRecords = $users->count();
+        // Custom search parameters from the form
+        $searchUserId    = $request->get('user_id');
+        $searchName      = $request->get('name');
+        $searchPhone     = $request->get('phone_number');
 
+        $users = DB::table('users');
+
+        // Apply custom search filters
+        if ($searchUserId) {
+            $users->where('user_id', 'like', '%' . $searchUserId . '%');
+        }
+        if ($searchName) {
+            $users->where('name', 'like', '%' . $searchName . '%');
+        }
+        if ($searchPhone) {
+            $users->where('phone_number', 'like', '%' . $searchPhone . '%');
+        }
+
+        // Apply global search filter
+        $totalRecords = DB::table('users')->count();
         $totalRecordsWithFilter = $users->where(function ($query) use ($searchValue) {
-            $query->where('name', 'like', '%' . $searchValue . '%');
-            $query->orWhere('email', 'like', '%' . $searchValue . '%');
-            $query->orWhere('position', 'like', '%' . $searchValue . '%');
-            $query->orWhere('phone_number', 'like', '%' . $searchValue . '%');
-            $query->orWhere('status', 'like', '%' . $searchValue . '%');
+            $query->where('name', 'like', '%' . $searchValue . '%')
+                ->orWhere('email', 'like', '%' . $searchValue . '%')
+                ->orWhere('position', 'like', '%' . $searchValue . '%')
+                ->orWhere('phone_number', 'like', '%' . $searchValue . '%')
+                ->orWhere('status', 'like', '%' . $searchValue . '%');
         })->count();
 
         if ($columnName == 'name') {
             $columnName = 'name';
         }
+
         $records = $users->orderBy($columnName, $columnSortOrder)
             ->where(function ($query) use ($searchValue) {
-                $query->where('name', 'like', '%' . $searchValue . '%');
-                $query->orWhere('email', 'like', '%' . $searchValue . '%');
-                $query->orWhere('position', 'like', '%' . $searchValue . '%');
-                $query->orWhere('phone_number', 'like', '%' . $searchValue . '%');
-                $query->orWhere('status', 'like', '%' . $searchValue . '%');
+                $query->where('name', 'like', '%' . $searchValue . '%')
+                    ->orWhere('email', 'like', '%' . $searchValue . '%')
+                    ->orWhere('position', 'like', '%' . $searchValue . '%')
+                    ->orWhere('phone_number', 'like', '%' . $searchValue . '%')
+                    ->orWhere('status', 'like', '%' . $searchValue . '%');
             })
             ->skip($start)
             ->take($rowPerPage)
             ->get();
+
         $data_arr = [];
 
         foreach ($records as $key => $record) {
-            $modify = '
-                <td class="text-right">
-                    <div class="dropdown dropdown-action">
-                        <a href="" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v ellipse_color"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="' . url('users/add/edit/' . $record->user_id) . '">
-                                <i class="far fa-edit me-2"></i> Edit
-                            </a>
-                            <a class="dropdown-item" href="' . url('users/delete/' . $record->id) . '">
-                            <i class="fas fa-trash-alt m-r-5"></i> Delete
-                        </a>
-                        </div>
-                    </div>
-                </td>
-            ';
             $avatar = '
                 <td>
                     <h2 class="table-avatar">
                         <a class="avatar-sm me-2">
-                            <img class="avatar-img rounded-circle avatar" data-avatar=' . $record->avatar . ' src="/images/' . $record->avatar . '"alt="' . $record->name . '">
+                            <img class="avatar-img rounded-circle avatar" data-avatar="' . $record->avatar . '" src="/images/' . $record->avatar . '" alt="' . $record->name . '">
                         </a>
                     </h2>
                 </td>
@@ -229,7 +228,7 @@ class UserManagementController extends Controller
                             <i class="far fa-edit me-2"></i>
                         </a>
                         <a class="btn btn-sm bg-danger-light delete user_id" data-bs-toggle="modal" data-user_id="' . $record->user_id . '" data-bs-target="#delete">
-                        <i class="fe fe-trash-2"></i>
+                            <i class="fe fe-trash-2"></i>
                         </a>
                     </div>
                 </td>

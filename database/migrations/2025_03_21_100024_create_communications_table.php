@@ -17,10 +17,10 @@ return new class extends Migration
             $table->text('message');
             $table->string('sender');
             $table->string('receiver');
+            $table->string('meeting_link')->nullable(); // Added for live meeting link
             $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.

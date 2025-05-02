@@ -14,5 +14,6 @@ class Communication extends Model
         'message',
         'sender',
         'receiver',
+        'meeting_link', // Added for live meeting link
     ];
 }

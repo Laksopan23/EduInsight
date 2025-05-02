@@ -122,7 +122,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('communication/add/save', 'communicationSave')->name('communication/add/save');
         Route::get('communication/edit/{id}', 'communicationEdit')->name('communication/edit');
         Route::post('communication/update', 'communicationUpdate')->name('communication/update');
+        Route::post('communication/delete', 'communicationDelete')->name('communication/delete');
         Route::get('communication/profile/{id}', 'communicationProfile')->name('communication/profile');
+        Route::get('zoom/authorize', 'authorizeZoom')->name('zoom.authorize');
+        Route::get('callback', 'handleCallback')->name('zoom.callback');
     });
 
     // Subjects
@@ -160,6 +163,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('account/fees/collections/page', 'index')->name('account/fees/collections/page');
         Route::get('add/fees/collection/page', 'addFeesCollection')->name('add/fees/collection/page');
         Route::post('fees/collection/save', 'saveRecord')->name('fees/collection/save');
+        Route::get('fees/collection/edit/{id}', 'edit')->name('fees/collection/edit');
+        Route::put('fees/collection/update/{id}', 'updateRecord')->name('fees/collection/update');
+        Route::post('fees/collection/delete', 'deleteRecord')->name('fees/collection/delete');
     });
 });
 

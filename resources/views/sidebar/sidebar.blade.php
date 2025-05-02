@@ -169,7 +169,7 @@
                     </a>
                     <ul>
                         <li><a href="{{ route('subject/list/page') }}" class="{{ set_active(['subject/list/page']) }}">Subject List</a></li>
-                        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
+                        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Teachers')
                         <li><a href="{{ route('subject/add/page') }}" class="{{ set_active(['subject/add/page']) }}">Subject Add</a></li>
                         <li><a href="#" class="{{ request()->is('subject/edit/*') ? 'active' : '' }}">Subject Edit</a></li>
                         @endif
@@ -177,21 +177,20 @@
                 </li>
 
                 <!-- Exam Schedules -->
-<li class="submenu {{ set_active(['exam_schedule/list', 'exam_schedule/add', 'exam_schedule/edit/*']) }}">
-    <a href="#">
-        <i class="fas fa-calendar-alt"></i>
-        <span> Exam Schedules</span>
-        <span class="menu-arrow"></span>
-    </a>
-    <ul>
-        <li><a href="{{ route('exam_schedule/list') }}" class="{{ set_active(['exam_schedule/list']) }}">Exam Schedule List</a></li>
-        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Teachers')
-        <li><a href="{{ route('exam_schedule/add') }}" class="{{ set_active(['exam_schedule/add']) }}">Add Exam Schedule</a></li>
-        <li><a href="#" class="{{ request()->is('exam_schedule/edit/*') ? 'active' : '' }}">Edit Exam Schedule</a></li>
-        @endif
-    </ul>
-</li>
-
+                <li class="submenu {{ set_active(['exam_schedule/list', 'exam_schedule/add', 'exam_schedule/edit/*']) }}">
+                    <a href="#">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span> Exam Schedules</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul>
+                        <li><a href="{{ route('exam_schedule/list') }}" class="{{ set_active(['exam_schedule/list']) }}">Exam Schedule List</a></li>
+                        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Teachers')
+                        <li><a href="{{ route('exam_schedule/add') }}" class="{{ set_active(['exam_schedule/add']) }}">Add Exam Schedule</a></li>
+                        <li><a href="#" class="{{ request()->is('exam_schedule/edit/*') ? 'active' : '' }}">Edit Exam Schedule</a></li>
+                        @endif
+                    </ul>
+                </li>
 
                 <!-- Invoices -->
                 @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
@@ -223,6 +222,7 @@
                     <ul>
                         <li><a href="{{ route('account/fees/collections/page') }}" class="{{ set_active(['account/fees/collections/page']) }}">Fees Collection</a></li>
                         <li><a href="{{ route('add/fees/collection/page') }}" class="{{ set_active(['add/fees/collection/page']) }}">Add Fees</a></li>
+                        <li><a href="{{ route('account/fees/collections/page') }}" class="{{ set_active(['fees/collection/edit']) }}">Edit Fees</a></li>
                     </ul>
                 </li>
                 @endif

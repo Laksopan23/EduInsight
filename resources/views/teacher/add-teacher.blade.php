@@ -1,6 +1,5 @@
 @extends('layouts.master')
 @section('content')
-{{-- message --}}
 {!! Toastr::message() !!}
 <div class="page-wrapper">
     <div class="content container-fluid">
@@ -40,6 +39,15 @@
                                         <label>Email <span class="login-danger">*</span></label>
                                         <input type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" placeholder="Enter Email">
                                         @error('email')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <div class="form-group local-forms">
+                                        <label>Password <span class="login-danger">*</span></label>
+                                        <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" placeholder="Enter Password">
+                                        @error('password')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
                                     </div>

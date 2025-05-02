@@ -4,7 +4,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <title>Admin Dashboard</title>
+    <title>
+        @if (Session::has('role_name'))
+            {{ ucfirst(Session::get('Admin')) }} Admin Dashboard
+        @elseif(Session::has('role_name'))
+            {{ ucfirst(Session::get('Teachers')) }} Teacher Dashboard
+        @elseif(Session::has('role_name'))
+            {{ ucfirst(Session::get('Student')) }} Student Dashboard
+        @elseif(Session::has('role_name'))
+            {{ ucfirst(Session::get('Guardian')) }} Parent Dashboard
+        @endif
+    </title>
     <link rel="shortcut icon" href="{{ URL::to('assets/img/favicon.png') }}">
     <link rel="stylesheet" href="{{ URL::to('assets/plugins/bootstrap/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ URL::to('assets/plugins/feather/feather.css') }}">
@@ -17,11 +27,12 @@
     <link rel="stylesheet" href="{{ URL::to('assets/plugins/datatables/datatables.min.css') }}">
     <link rel="stylesheet" href="{{ URL::to('assets/plugins/select2/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ URL::to('assets/css/style.css') }}">
-	{{-- message toastr --}}
-	<link rel="stylesheet" href="{{ URL::to('assets/css/toastr.min.css') }}">
-	<script src="{{ URL::to('assets/js/toastr_jquery.min.js') }}"></script>
-	<script src="{{ URL::to('assets/js/toastr.min.js') }}"></script>
+    {{-- message toastr --}}
+    <link rel="stylesheet" href="{{ URL::to('assets/css/toastr.min.css') }}">
+    <script src="{{ URL::to('assets/js/toastr_jquery.min.js') }}"></script>
+    <script src="{{ URL::to('assets/js/toastr.min.js') }}"></script>
 </head>
+
 <body>
     <div class="main-wrapper">
         <div class="header">
@@ -152,7 +163,7 @@
                 <li class="nav-item dropdown has-arrow new-user-menus">
                     <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
                         <span class="user-img">
-                            <img class="rounded-circle" src="/images/{{ Session::get('avatar') }}" width="31"alt="">
+                            <img class="rounded-circle" src="/images/{{ Session::get('avatar') }}" width="31" alt="">
                             <div class="user-text">
                                 <h6>{{ Session::get('name') }}</h6>
                                 <p class="text-muted mb-0">{{ Session::get('role_name') }}</p>
@@ -176,14 +187,13 @@
                 </li>
             </ul>
         </div>
-		{{-- side bar --}}
-		@include('sidebar.sidebar')
-		{{-- content page --}}
+        {{-- side bar --}}
+        @include('sidebar.sidebar')
+        {{-- content page --}}
         @yield('content')
         <footer>
             <p>Copyright ©  <?php echo date('Y'); ?> Soeng Souy.</p>
         </footer>
-    
     </div>
 
     <script src="{{ URL::to('assets/js/jquery-3.6.0.min.js') }}"></script>

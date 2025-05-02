@@ -1,7 +1,5 @@
 <?php
 
-
-
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Request;
 use App\Http\Controllers\Auth\LoginController;
@@ -16,22 +14,20 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\AccountsController;
 use App\Http\Controllers\CommunicationController;
 use App\Http\Controllers\Setting;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\ParentController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\GuardianController;
+use App\Http\Controllers\ScheduleController;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ExamScheduleController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
+| Here is where you can register web routes for your application.
 */
 
-/** for sidebar menu active */
 if (!function_exists('set_active')) {
     function set_active($route)
     {
@@ -49,13 +45,14 @@ Route::get('/', function () {
 });
 
 Route::group(['middleware' => 'auth'], function () {
-    // Main Dashboard Routes
+    // Dashboard Routes
     Route::controller(HomeController::class)->group(function () {
         Route::get('/home', 'index')->name('home');
         Route::get('user/profile/page', 'userProfile')->name('user/profile/page');
         Route::get('teacher/dashboard', 'teacherDashboardIndex')->name('teacher.dashboard');
         Route::get('student/dashboard', 'studentDashboardIndex')->name('student.dashboard');
         Route::get('parent/dashboard', 'parentDashboardIndex')->name('parent.dashboard');
+        Route::get('guardian/dashboard', 'guardianDashboardIndex')->name('guardian.dashboard');
     });
 
     // User Management
@@ -66,6 +63,27 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('user/update', 'userUpdate')->name('user/update');
         Route::post('user/delete', 'userDelete')->name('user/delete');
         Route::get('get-users-data', 'getUsersData')->name('get-users-data');
+    });
+
+    // Guardians
+    Route::controller(GuardianController::class)->group(function () {
+        Route::get('guardian/list', 'index')->name('guardian/list');
+        Route::get('guardian/add', 'add')->name('guardian/add');
+        Route::post('guardian/save', 'save')->name('guardian/save');
+        Route::get('guardian/edit/{id}', 'edit')->name('guardian/edit');
+        Route::post('guardian/update', 'update')->name('guardian/update');
+        Route::post('guardian/delete', 'delete')->name('guardian/delete');
+        Route::get('guardian/{id}/schedules', 'viewSchedules')->name('guardian/schedules');
+    });
+
+    // Exam Schedule Routes
+    Route::controller(ExamScheduleController::class)->group(function () {
+        Route::get('exam_schedule/list', [App\Http\Controllers\ExamScheduleController::class, 'index'])->name('exam_schedule/list');
+        Route::get('exam_schedule/add', [App\Http\Controllers\ExamScheduleController::class, 'create'])->name('exam_schedule/add');
+        Route::post('exam_schedule/store', [App\Http\Controllers\ExamScheduleController::class, 'store'])->name('exam_schedule/store');
+        Route::get('exam_schedule/edit/{id}', [App\Http\Controllers\ExamScheduleController::class, 'edit'])->name('exam_schedule/edit');
+        Route::put('exam_schedule/update/{id}', [App\Http\Controllers\ExamScheduleController::class, 'update'])->name('exam_schedule/update');
+        Route::delete('exam_schedule/delete', [App\Http\Controllers\ExamScheduleController::class, 'destroy'])->name('exam_schedule/delete');
     });
 
     // Settings
@@ -110,11 +128,11 @@ Route::group(['middleware' => 'auth'], function () {
     // Subjects
     Route::controller(SubjectController::class)->group(function () {
         Route::get('subject/list/page', 'subjectList')->name('subject/list/page');
-        Route::get('subject/add/page', 'subjectAdd')->name('subject/add/page');
-        Route::post('subject/save', 'saveRecord')->name('subject/save');
-        Route::post('subject/update', 'updateRecord')->name('subject/update');
-        Route::post('subject/delete', 'deleteRecord')->name('subject/delete');
-        Route::get('subject/edit/{subject_id}', 'subjectEdit')->name('subject/edit');
+        Route::get('subject/add/page', 'subjectAdd')->middleware('admin')->name('subject/add/page');
+        Route::post('subject/save', 'saveRecord')->middleware('admin')->name('subject/save');
+        Route::get('subject/edit/{id}', 'subjectEdit')->middleware('admin')->name('subject/edit');
+        Route::post('subject/update', 'updateRecord')->middleware('admin')->name('subject/update');
+        Route::post('subject/delete', 'deleteRecord')->middleware('admin')->name('subject/delete');
     });
 
     // Invoices
@@ -143,16 +161,6 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('add/fees/collection/page', 'addFeesCollection')->name('add/fees/collection/page');
         Route::post('fees/collection/save', 'saveRecord')->name('fees/collection/save');
     });
-
-    // Exams
-    Route::resource('exams', ExamController::class);
-    Route::post('exams/{exam}/addResult', [ExamController::class, 'addResult'])->name('exams.addResult');
-    Route::get('exams/create', [ExamController::class, 'create'])->name('exams.create');
-    Route::post('exams/store', [ExamController::class, 'store'])->name('exams.store');
-    Route::get('exam/list', [ExamController::class, 'index'])->name('exam.list');
-    Route::get('exam/edit/{exam}', [ExamController::class, 'edit'])->name('exam.edit');
-    Route::post('exam/update', [ExamController::class, 'update'])->name('exam.update');
-    Route::delete('exam/delete/{exam}', [ExamController::class, 'destroy'])->name('exam.delete');
 });
 
 // Auth Routes

@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             $table->string('user_id')->nullable();
+            $table->unsignedBigInteger('user_id_fk')->nullable();
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('gender')->nullable();
@@ -30,6 +31,8 @@ return new class extends Migration
             $table->string('phone_number')->nullable();
             $table->string('upload')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id_fk')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

@@ -2,99 +2,84 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Models\Subject;
-
+use Illuminate\Http\Request;
 use Brian2694\Toastr\Facades\Toastr;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class SubjectController extends Controller
 {
-    /** index page */
     public function subjectList()
     {
-        $subjectList = Subject::all();
-        return view('subjects.subject_list', compact('subjectList'));
+        $subjects = Subject::all()->groupBy('grade');
+        return view('subjects.subject_list', compact('subjects'));
     }
 
-    /** subject add */
     public function subjectAdd()
     {
-        return view('subjects.subject_add');
+        $grades = ['Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11'];
+        $categories = ['Core', 'Basket 1', 'Basket 2', 'Basket 3'];
+        return view('subjects.subject_add', compact('grades', 'categories'));
     }
 
-    /** save record */
     public function saveRecord(Request $request)
     {
         $request->validate([
-            'subject_name' => 'required|string',
-            'class'        => 'required|string',
+            'name' => 'required|string|max:255|unique:subjects,name,NULL,id,grade,' . $request->grade,
+            'grade' => 'required|in:Grade 6,Grade 7,Grade 8,Grade 9,Grade 10,Grade 11',
+            'category' => 'required|in:Core,Basket 1,Basket 2,Basket 3',
+            'is_mandatory' => 'required|boolean',
         ]);
 
-        DB::beginTransaction();
-        try {
-            $saveRecord = new Subject;
-            $saveRecord->subject_name   = $request->subject_name;
-            $saveRecord->class          = $request->class;
-            $saveRecord->save();
+        Subject::create([
+            'name' => $request->name,
+            'grade' => $request->grade,
+            'category' => $request->category,
+            'is_mandatory' => $request->is_mandatory,
+        ]);
 
-            Toastr::success('Has been add successfully :)', 'Success');
-            DB::commit();
-            return redirect()->back();
-        } catch (\Exception $e) {
-            Log::info($e);
-            DB::rollback();
-            Toastr::error('fail, Add new record:)', 'Error');
-            return redirect()->back();
-        }
+        Toastr::success('Subject added successfully', 'Success');
+        return redirect()->route('subject/list/page');
     }
 
-    /** subject edit view */
-    public function subjectEdit($subject_id)
+    public function subjectEdit($id)
     {
-        $subjectEdit = Subject::where('subject_id', $subject_id)->first();
-        return view('subjects.subject_edit', compact('subjectEdit'));
+        $subject = Subject::findOrFail($id);
+        $grades = ['Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11'];
+        $categories = ['Core', 'Basket 1', 'Basket 2', 'Basket 3'];
+        return view('subjects.subject_edit', compact('subject', 'grades', 'categories'));
     }
 
-    /** update record */
     public function updateRecord(Request $request)
     {
-        DB::beginTransaction();
-        try {
+        $request->validate([
+            'id' => 'required|exists:subjects,id',
+            'name' => 'required|string|max:255|unique:subjects,name,' . $request->id . ',id,grade,' . $request->grade,
+            'grade' => 'required|in:Grade 6,Grade 7,Grade 8,Grade 9,Grade 10,Grade 11',
+            'category' => 'required|in:Core,Basket 1,Basket 2,Basket 3',
+            'is_mandatory' => 'required|boolean',
+        ]);
 
-            $updateRecord = [
-                'subject_name' => $request->subject_name,
-                'class'        => $request->class,
-            ];
+        $subject = Subject::findOrFail($request->id);
+        $subject->update([
+            'name' => $request->name,
+            'grade' => $request->grade,
+            'category' => $request->category,
+            'is_mandatory' => $request->is_mandatory,
+        ]);
 
-            Subject::where('subject_id', $request->subject_id)->update($updateRecord);
-            Toastr::success('Has been update successfully :)', 'Success');
-            DB::commit();
-            return redirect()->back();
-        } catch (\Exception $e) {
-            Log::info($e);
-            DB::rollback();
-            Toastr::error('Fail, update record:)', 'Error');
-            return redirect()->back();
-        }
+        Toastr::success('Subject updated successfully', 'Success');
+        return redirect()->route('subject/list/page');
     }
 
-    /** delete record */
     public function deleteRecord(Request $request)
     {
-        DB::beginTransaction();
-        try {
+        $request->validate([
+            'id' => 'required|exists:subjects,id',
+        ]);
 
-            Subject::where('subject_id', $request->subject_id)->delete();
-            DB::commit();
-            Toastr::success('Deleted record successfully :)', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            DB::rollback();
-            Toastr::error('Deleted record fail :)', 'Error');
-            return redirect()->back();
-        }
+        Subject::findOrFail($request->id)->delete();
+
+        Toastr::success('Subject deleted successfully', 'Success');
+        return redirect()->route('subject/list/page');
     }
 }

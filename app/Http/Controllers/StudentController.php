@@ -38,6 +38,7 @@ class StudentController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
             'gender' => 'required|string|in:Male,Female,Others',
             'date_of_birth' => 'required|date',
             'roll' => 'required|string',
@@ -65,7 +66,7 @@ class StudentController extends Controller
                 'date_of_birth' => $request->date_of_birth,
                 'role_name' => 'Student',
                 'status' => 'Active',
-                'password' => Hash::make('default123'),
+                'password' => Hash::make($request->password),
                 'avatar' => 'photo_defaults.jpg',
             ]);
 
@@ -120,7 +121,8 @@ class StudentController extends Controller
             'id' => 'required|exists:students,id',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $student->user_id_fk . ',id',
+            'email' => 'required|email|unique:users,email,' . $student->user->user_id . ',user_id',
+            'password' => 'nullable|string|min:8',
             'gender' => 'required|string|in:Male,Female,Others',
             'date_of_birth' => 'required|date',
             'roll' => 'required|string',
@@ -152,12 +154,18 @@ class StudentController extends Controller
                 $request->upload->storeAs('public/student-photos', $upload_file);
             }
 
-            $user->update([
+            $userData = [
                 'name' => $request->first_name . ' ' . $request->last_name,
                 'email' => $request->email,
                 'phone_number' => $request->phone_number,
                 'date_of_birth' => $request->date_of_birth,
-            ]);
+            ];
+
+            if ($request->filled('password')) {
+                $userData['password'] = Hash::make($request->password);
+            }
+
+            $user->update($userData);
 
             $student->update([
                 'first_name' => $request->first_name,
@@ -200,13 +208,19 @@ class StudentController extends Controller
         DB::beginTransaction();
         try {
             $student = Student::findOrFail($request->id);
+            $user = $student->user;
             $upload_file = $student->upload;
 
             if ($upload_file && Storage::exists('public/student-photos/' . $upload_file)) {
                 Storage::delete('public/student-photos/' . $upload_file);
             }
 
-            $student->delete(); // Cascade deletes user due to foreign key
+            // Explicitly delete the user record if cascade isn't working
+            if ($user) {
+                $user->delete();
+            }
+
+            $student->delete();
 
             DB::commit();
             Toastr::success('Student deleted successfully!', 'Success');

@@ -1,11 +1,9 @@
-
 @extends('layouts.master')
 @section('content')
 {{-- message --}}
 {!! Toastr::message() !!}
 <div class="page-wrapper">
     <div class="content container-fluid">
-
         <div class="page-header">
             <div class="row">
                 <div class="col-sm-12">
@@ -21,28 +19,30 @@
         </div>
 
         <div class="student-group-form">
-            <div class="row">
-                <div class="col-lg-3 col-md-6">
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search by ID ...">
+            <form id="userSearchForm">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="form-group">
+                            <input type="text" class="form-control search-id" name="user_id" placeholder="Search by ID ...">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="form-group">
+                            <input type="text" class="form-control search-name" name="name" placeholder="Search by Name ...">
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-group">
+                            <input type="text" class="form-control search-phone" name="phone_number" placeholder="Search by Phone ...">
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="search-student-btn">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search by Name ...">
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search by Phone ...">
-                    </div>
-                </div>
-                <div class="col-lg-2">
-                    <div class="search-student-btn">
-                        <button type="btn" class="btn btn-primary">Search</button>
-                    </div>
-                </div>
-            </div>
+            </form>
         </div>
 
         <div class="row">
@@ -73,7 +73,7 @@
     </div>
 </div>
 
-{{-- model elete --}}
+{{-- model delete --}}
 <div class="modal custom-modal fade" id="delete" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -87,15 +87,13 @@
                         <form action="{{ route('user/delete') }}" method="POST">
                             @csrf
                             <input type="hidden" name="user_id" class="e_user_id" value="">
-                            <input type="hidden" name="avatar" class="e_avatar" value= "">
+                            <input type="hidden" name="avatar" class="e_avatar" value="">
                             <div class="row">
                                 <div class="col-6">
                                     <button type="submit" class="btn btn-primary paid-continue-btn" style="width: 100%;">Delete</button>
                                 </div>
                                 <div class="col-6">
-                                    <a data-bs-dismiss="modal"
-                                        class="btn btn-primary paid-cancel-btn">Cancel
-                                    </a>
+                                    <a data-bs-dismiss="modal" class="btn btn-primary paid-cancel-btn">Cancel</a>
                                 </div>
                             </div>
                         </form>
@@ -109,64 +107,46 @@
 @section('script')
 {{-- delete js --}}
 <script>
-    $(document).on('click','.delete',function()
-    {
+    $(document).on('click', '.delete', function() {
         var _this = $(this).parents('tr');
         $('.e_user_id').val(_this.find('.user_id').data('user_id'));
         $('.e_avatar').val(_this.find('.avatar').data('avatar'));
     });
 </script>
 
-{{-- get user all js --}}
+{{-- get user all js with search --}}
 <script type="text/javascript">
     $(document).ready(function() {
-       $('#UsersList').DataTable({
+        var table = $('#UsersList').DataTable({
             processing: true,
             serverSide: true,
             ordering: true,
-            searching: true,
+            searching: false, // Disable default global search
             ajax: {
-                url:"{{ route('get-users-data') }}",
+                url: "{{ route('get-users-data') }}",
+                data: function(d) {
+                    d.user_id = $('input[name="user_id"]').val();
+                    d.name = $('input[name="name"]').val();
+                    d.phone_number = $('input[name="phone_number"]').val();
+                }
             },
             columns: [
-                {
-                    data: 'user_id',
-                    name: 'user_id',
-                },
-                {
-                    data: 'avatar',
-                    name: 'avatar'
-                },
-                {
-                    data: 'name',
-                    name: 'name'
-                },
-                {
-                    data: 'email',
-                    name: 'email'
-                },
-                {
-                    data: 'phone_number',
-                    name: 'phone_number'
-                },
-                {
-                    data: 'join_date',
-                    name: 'join_date'
-                },
-                {
-                    data: 'position',
-                    name: 'position'
-                },
-               
-                {
-                    data: 'status',
-                    name: 'status',
-                },
-                {
-                    data: 'modify',
-                    name: 'modify',
-                },
+                { data: 'user_id', name: 'user_id' },
+                { data: 'avatar', name: 'avatar' },
+                { data: 'name', name: 'name' },
+                { data: 'email', name: 'email' },
+                { data: 'phone_number', name: 'phone_number' },
+                { data: 'join_date', name: 'join_date' },
+                { data: 'position', name: 'position' },
+                { data: 'status', name: 'status' },
+                { data: 'modify', name: 'modify' },
             ]
+        });
+
+        // Handle search form submission
+        $('#userSearchForm').on('submit', function(e) {
+            e.preventDefault();
+            table.ajax.reload(); // Reload DataTable with new search parameters
         });
     });
 </script>

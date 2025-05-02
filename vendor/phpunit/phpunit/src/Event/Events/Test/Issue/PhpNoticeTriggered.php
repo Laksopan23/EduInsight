@@ -119,11 +119,9 @@ final class PhpNoticeTriggered implements Event
         }
 
         return sprintf(
-            'Test Triggered %sPHP Notice (%s) in %s:%d%s',
+            'Test Triggered %sPHP Notice (%s)%s',
             $status,
             $this->test->id(),
-            $this->file,
-            $this->line,
             $message,
         );
     }

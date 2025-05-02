@@ -119,11 +119,9 @@ final class WarningTriggered implements Event
         }
 
         return sprintf(
-            'Test Triggered %sWarning (%s) in %s:%d%s',
+            'Test Triggered %sWarning (%s)%s',
             $status,
             $this->test->id(),
-            $this->file,
-            $this->line,
             $message,
         );
     }

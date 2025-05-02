@@ -80,9 +80,9 @@ class Backtrace
         return $this;
     }
 
-    public function withObject(bool $withObject = true): self
+    public function withObject(): self
     {
-        $this->withObject = $withObject;
+        $this->withObject = true;
 
         return $this;
     }
@@ -149,15 +149,12 @@ class Backtrace
             return $this->throwable->getTrace();
         }
 
-        // Omit arguments and object
-        $options = DEBUG_BACKTRACE_IGNORE_ARGS;
+        $options = DEBUG_BACKTRACE_PROVIDE_OBJECT;
 
-        // Populate arguments
-        if ($this->withArguments) {
-            $options = 0;
+        if (! $this->withArguments) {
+            $options = $options | DEBUG_BACKTRACE_IGNORE_ARGS;
         }
 
-        // Populate object
         if ($this->withObject) {
             $options = $options | DEBUG_BACKTRACE_PROVIDE_OBJECT;
         }
@@ -205,7 +202,6 @@ class Backtrace
                 $arguments,
                 $rawFrame['function'] ?? null,
                 $rawFrame['class'] ?? null,
-                $rawFrame['object'] ?? null,
                 $this->isApplicationFrame($currentFile),
                 $textSnippet,
                 $trimmedFilePath ?? null,

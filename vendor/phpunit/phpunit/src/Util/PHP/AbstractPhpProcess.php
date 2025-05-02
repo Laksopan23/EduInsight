@@ -296,6 +296,10 @@ abstract class AbstractPhpProcess
         }
 
         if ($childResult !== false) {
+            if (!empty($childResult['output'])) {
+                $output = $childResult['output'];
+            }
+
             Facade::instance()->forward($childResult['events']);
             PassedTests::instance()->import($childResult['passedTests']);
 
@@ -309,6 +313,10 @@ abstract class AbstractPhpProcess
                     $childResult['codeCoverage'],
                 );
             }
+        }
+
+        if (!empty($output)) {
+            print $output;
         }
     }
 }

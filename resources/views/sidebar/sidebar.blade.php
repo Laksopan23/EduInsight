@@ -176,6 +176,22 @@
                     </ul>
                 </li>
 
+                <!-- Exam Schedules -->
+<li class="submenu {{ set_active(['exam_schedule/list', 'exam_schedule/add', 'exam_schedule/edit/*']) }}">
+    <a href="#">
+        <i class="fas fa-calendar-alt"></i>
+        <span> Exam Schedules</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul>
+        <li><a href="{{ route('exam_schedule/list') }}" class="{{ set_active(['exam_schedule/list']) }}">Exam Schedule List</a></li>
+        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Teachers')
+        <li><a href="{{ route('exam_schedule/add') }}" class="{{ set_active(['exam_schedule/add']) }}">Add Exam Schedule</a></li>
+        <li><a href="#" class="{{ request()->is('exam_schedule/edit/*') ? 'active' : '' }}">Edit Exam Schedule</a></li>
+        @endif
+    </ul>
+</li>
+
 
                 <!-- Invoices -->
                 @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')

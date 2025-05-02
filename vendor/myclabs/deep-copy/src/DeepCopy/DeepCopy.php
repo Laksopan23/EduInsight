@@ -122,14 +122,6 @@ class DeepCopy
         ];
     }
 
-    public function prependTypeFilter(TypeFilter $filter, TypeMatcher $matcher)
-    {
-        array_unshift($this->typeFilters, [
-            'matcher' => $matcher,
-            'filter'  => $filter,
-        ]);
-    }
-
     private function recursiveCopy($var)
     {
         // Matches Type Filter

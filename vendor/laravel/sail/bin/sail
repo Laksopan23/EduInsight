@@ -85,7 +85,6 @@ function display_help {
     echo "  ${GREEN}sail psql${NC}      Start a PostgreSQL CLI session within the 'pgsql' container"
     echo "  ${GREEN}sail mongodb${NC}   Start a Mongo Shell session within the 'mongodb' container"
     echo "  ${GREEN}sail redis${NC}     Start a Redis CLI session within the 'redis' container"
-    echo "  ${GREEN}sail valkey${NC}    Start a Valkey CLI session within the 'valkey' container"
     echo
     echo "${YELLOW}Debugging:${NC}"
     echo "  ${GREEN}sail debug ...${NC}          Run an Artisan command in debug mode"
@@ -112,7 +111,6 @@ function display_help {
     echo
     echo "${YELLOW}Binaries:${NC}"
     echo "  ${GREEN}sail bin ...${NC}   Run Composer binary scripts from the vendor/bin directory"
-    echo "  ${GREEN}sail run ...${NC}   Run a command within the application container"
     echo
     echo "${YELLOW}Customization:${NC}"
     echo "  ${GREEN}sail artisan sail:publish${NC}   Publish the Sail configuration files"
@@ -141,7 +139,6 @@ fi
 # Define environment variables...
 export APP_PORT=${APP_PORT:-80}
 export APP_SERVICE=${APP_SERVICE:-"laravel.test"}
-export APP_USER=${APP_USER:-"sail"}
 export DB_PORT=${DB_PORT:-3306}
 export WWWUSER=${WWWUSER:-$UID}
 export WWWGROUP=${WWWGROUP:-$(id -g)}
@@ -214,7 +211,7 @@ if [ "$1" == "php" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" "php")
     else
@@ -228,23 +225,9 @@ elif [ "$1" == "bin" ]; then
     if [ "$EXEC" == "yes" ]; then
         CMD=$1
         shift 1
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" ./vendor/bin/"$CMD")
-    else
-        sail_is_not_running
-    fi
-
-# Proxy commands on the application container...
-elif [ "$1" == "run" ]; then
-    shift 1
-
-    if [ "$EXEC" == "yes" ]; then
-        CMD=$1
-        shift 1
-        ARGS+=(exec -u "$APP_USER")
-        [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" "$CMD")
     else
         sail_is_not_running
     fi
@@ -254,7 +237,7 @@ elif [ "$1" == "docker-compose" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" "${DOCKER_COMPOSE[@]}")
     else
@@ -266,7 +249,7 @@ elif [ "$1" == "composer" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" "composer")
     else
@@ -278,7 +261,7 @@ elif [ "$1" == "artisan" ] || [ "$1" == "art" ] || [ "$1" == "a" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" php artisan)
     else
@@ -290,7 +273,7 @@ elif [ "$1" == "debug" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER" -e XDEBUG_TRIGGER=1)
+        ARGS+=(exec -u sail -e XDEBUG_TRIGGER=1)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" php artisan)
     else
@@ -302,7 +285,7 @@ elif [ "$1" == "test" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" php artisan test)
     else
@@ -314,7 +297,7 @@ elif [ "$1" == "phpunit" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" php vendor/bin/phpunit)
     else
@@ -326,7 +309,7 @@ elif [ "$1" == "pest" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" php vendor/bin/pest)
     else
@@ -338,7 +321,7 @@ elif [ "$1" == "pint" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" php vendor/bin/pint)
     else
@@ -350,7 +333,7 @@ elif [ "$1" == "dusk" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=(-e "APP_URL=http://${APP_SERVICE}")
         ARGS+=(-e "DUSK_DRIVER_URL=http://selenium:4444/wd/hub")
@@ -364,7 +347,7 @@ elif [ "$1" == "dusk:fails" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=(-e "APP_URL=http://${APP_SERVICE}")
         ARGS+=(-e "DUSK_DRIVER_URL=http://selenium:4444/wd/hub")
@@ -378,7 +361,7 @@ elif [ "$1" == "tinker" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" php artisan tinker)
     else
@@ -390,7 +373,7 @@ elif [ "$1" == "node" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" node)
     else
@@ -402,7 +385,7 @@ elif [ "$1" == "npm" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" npm)
     else
@@ -414,7 +397,7 @@ elif [ "$1" == "npx" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" npx)
     else
@@ -426,7 +409,7 @@ elif [ "$1" == "pnpm" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" pnpm)
     else
@@ -438,7 +421,7 @@ elif [ "$1" == "pnpx" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" pnpx)
     else
@@ -450,7 +433,7 @@ elif [ "$1" == "yarn" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" yarn)
     else
@@ -462,7 +445,7 @@ elif [ "$1" == "bun" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" bun)
     else
@@ -474,7 +457,7 @@ elif [ "$1" == "bunx" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" bunx)
     else
@@ -525,7 +508,7 @@ elif [ "$1" == "shell" ] || [ "$1" == "bash" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
+        ARGS+=(exec -u sail)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" bash)
     else
@@ -564,18 +547,6 @@ elif [ "$1" == "redis" ]; then
         ARGS+=(exec)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=(redis redis-cli)
-    else
-        sail_is_not_running
-    fi
-
-# Initiate a Valkey CLI terminal session within the "valkey" container...
-elif [ "$1" == "valkey" ]; then
-    shift 1
-
-    if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec)
-        [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=(valkey valkey-cli)
     else
         sail_is_not_running
     fi

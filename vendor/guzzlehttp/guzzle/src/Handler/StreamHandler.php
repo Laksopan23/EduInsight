@@ -53,14 +53,8 @@ class StreamHandler
             $request = $request->withoutHeader('Expect');
 
             // Append a content-length header if body size is zero to match
-            // the behavior of `CurlHandler`
-            if (
-                (
-                    0 === \strcasecmp('PUT', $request->getMethod())
-                    || 0 === \strcasecmp('POST', $request->getMethod())
-                )
-                && 0 === $request->getBody()->getSize()
-            ) {
+            // cURL's behavior.
+            if (0 === $request->getBody()->getSize()) {
                 $request = $request->withHeader('Content-Length', '0');
             }
 

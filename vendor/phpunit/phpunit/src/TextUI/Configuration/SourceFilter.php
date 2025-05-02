@@ -16,36 +16,10 @@ namespace PHPUnit\TextUI\Configuration;
  */
 final class SourceFilter
 {
-    private static ?self $instance = null;
-
-    /**
-     * @psalm-var array<non-empty-string, true>
-     */
-    private readonly array $map;
-
-    public static function instance(): self
+    public function includes(Source $source, string $path): bool
     {
-        if (self::$instance === null) {
-            self::$instance = new self(
-                (new SourceMapper)->map(
-                    Registry::get()->source(),
-                ),
-            );
-        }
+        $files = (new SourceMapper)->map($source);
 
-        return self::$instance;
-    }
-
-    /**
-     * @psalm-param array<non-empty-string, true> $map
-     */
-    public function __construct(array $map)
-    {
-        $this->map = $map;
-    }
-
-    public function includes(string $path): bool
-    {
-        return isset($this->map[$path]);
+        return isset($files[$path]);
     }
 }

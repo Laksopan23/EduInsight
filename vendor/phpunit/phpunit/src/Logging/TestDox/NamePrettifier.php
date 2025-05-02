@@ -290,7 +290,7 @@ final class NamePrettifier
             $enumReflector = new ReflectionEnum($value);
 
             if ($enumReflector->isBacked()) {
-                return (string) $value->value;
+                return $value->value;
             }
 
             return $value->name;

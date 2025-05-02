@@ -289,11 +289,7 @@ class Event
     {
         return Process::fromShellCommandline(
             $this->buildCommand(), base_path(), null, null, null
-        )->run(
-            laravel_cloud()
-                ? fn ($type, $line) => fwrite($type === 'out' ? STDOUT : STDERR, $line)
-                : fn () => true
-        );
+        )->run();
     }
 
     /**

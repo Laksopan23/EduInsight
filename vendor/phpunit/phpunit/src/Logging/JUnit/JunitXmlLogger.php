@@ -31,7 +31,6 @@ use PHPUnit\Event\Test\Finished;
 use PHPUnit\Event\Test\MarkedIncomplete;
 use PHPUnit\Event\Test\PreparationStarted;
 use PHPUnit\Event\Test\Prepared;
-use PHPUnit\Event\Test\PrintedUnexpectedOutput;
 use PHPUnit\Event\Test\Skipped;
 use PHPUnit\Event\TestSuite\Started;
 use PHPUnit\Event\UnknownSubscriberTypeException;
@@ -88,7 +87,6 @@ final class JunitXmlLogger
     private ?HRTime $time                = null;
     private bool $prepared               = false;
     private bool $preparationFailed      = false;
-    private ?string $unexpectedOutput    = null;
 
     /**
      * @throws EventFacadeIsSealedException
@@ -202,11 +200,6 @@ final class JunitXmlLogger
         $this->prepared = true;
     }
 
-    public function testPrintedUnexpectedOutput(PrintedUnexpectedOutput $event): void
-    {
-        $this->unexpectedOutput = $event->output();
-    }
-
     /**
      * @throws InvalidArgumentException
      */
@@ -277,15 +270,6 @@ final class JunitXmlLogger
             sprintf('%F', $time),
         );
 
-        if ($this->unexpectedOutput !== null) {
-            $systemOut = $this->document->createElement(
-                'system-out',
-                Xml::prepareString($this->unexpectedOutput),
-            );
-
-            $this->currentTestCase->appendChild($systemOut);
-        }
-
         $this->testSuites[$this->testSuiteLevel]->appendChild(
             $this->currentTestCase,
         );
@@ -293,10 +277,9 @@ final class JunitXmlLogger
         $this->testSuiteTests[$this->testSuiteLevel]++;
         $this->testSuiteTimes[$this->testSuiteLevel] += $time;
 
-        $this->currentTestCase  = null;
-        $this->time             = null;
-        $this->prepared         = false;
-        $this->unexpectedOutput = null;
+        $this->currentTestCase = null;
+        $this->time            = null;
+        $this->prepared        = false;
     }
 
     /**
@@ -311,7 +294,6 @@ final class JunitXmlLogger
             new TestPreparationStartedSubscriber($this),
             new TestPreparationFailedSubscriber($this),
             new TestPreparedSubscriber($this),
-            new TestPrintedUnexpectedOutputSubscriber($this),
             new TestFinishedSubscriber($this),
             new TestErroredSubscriber($this),
             new TestFailedSubscriber($this),

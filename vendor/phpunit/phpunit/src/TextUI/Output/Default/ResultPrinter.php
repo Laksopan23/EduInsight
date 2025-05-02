@@ -26,7 +26,6 @@ use function substr;
 use function trim;
 use PHPUnit\Event\Code\Test;
 use PHPUnit\Event\Code\TestMethod;
-use PHPUnit\Event\Test\AfterLastTestMethodErrored;
 use PHPUnit\Event\Test\BeforeFirstTestMethodErrored;
 use PHPUnit\Event\Test\ConsideredRisky;
 use PHPUnit\Event\Test\DeprecationTriggered;
@@ -240,7 +239,7 @@ final class ResultPrinter
         $elements = [];
 
         foreach ($result->testErroredEvents() as $event) {
-            if ($event instanceof AfterLastTestMethodErrored || $event instanceof BeforeFirstTestMethodErrored) {
+            if ($event instanceof BeforeFirstTestMethodErrored) {
                 $title = $event->testClassName();
             } else {
                 $title = $this->name($event->test());

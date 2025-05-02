@@ -2,7 +2,6 @@
 
 namespace Illuminate\Database\Migrations;
 
-use Closure;
 use Doctrine\DBAL\Schema\SchemaException;
 use Illuminate\Console\View\Components\BulletList;
 use Illuminate\Console\View\Components\Error;
@@ -52,13 +51,6 @@ class Migrator
      * @var \Illuminate\Database\ConnectionResolverInterface
      */
     protected $resolver;
-
-    /**
-     * The custom connection resolver callback.
-     *
-     * @var \Closure|null
-     */
-    protected static $connectionResolverCallback;
 
     /**
      * The name of the default connection.
@@ -668,26 +660,7 @@ class Migrator
      */
     public function resolveConnection($connection)
     {
-        if (static::$connectionResolverCallback) {
-            return call_user_func(
-                static::$connectionResolverCallback,
-                $this->resolver,
-                $connection ?: $this->connection
-            );
-        } else {
-            return $this->resolver->connection($connection ?: $this->connection);
-        }
-    }
-
-    /**
-     * Set a connection resolver callback.
-     *
-     * @param  \Closure  $callback
-     * @return void
-     */
-    public static function resolveConnectionsUsing(Closure $callback)
-    {
-        static::$connectionResolverCallback = $callback;
+        return $this->resolver->connection($connection ?: $this->connection);
     }
 
     /**

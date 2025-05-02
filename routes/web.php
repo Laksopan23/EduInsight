@@ -16,7 +16,9 @@ use App\Http\Controllers\CommunicationController;
 use App\Http\Controllers\Setting;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\GuardianController;
+use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ExamScheduleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +73,17 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('guardian/edit/{id}', 'edit')->name('guardian/edit');
         Route::post('guardian/update', 'update')->name('guardian/update');
         Route::post('guardian/delete', 'delete')->name('guardian/delete');
+        Route::get('guardian/{id}/schedules', 'viewSchedules')->name('guardian/schedules');
+    });
+
+    // Exam Schedule Routes
+    Route::controller(ExamScheduleController::class)->group(function () {
+        Route::get('exam_schedule/list', [App\Http\Controllers\ExamScheduleController::class, 'index'])->name('exam_schedule/list');
+        Route::get('exam_schedule/add', [App\Http\Controllers\ExamScheduleController::class, 'create'])->name('exam_schedule/add');
+        Route::post('exam_schedule/store', [App\Http\Controllers\ExamScheduleController::class, 'store'])->name('exam_schedule/store');
+        Route::get('exam_schedule/edit/{id}', [App\Http\Controllers\ExamScheduleController::class, 'edit'])->name('exam_schedule/edit');
+        Route::put('exam_schedule/update/{id}', [App\Http\Controllers\ExamScheduleController::class, 'update'])->name('exam_schedule/update');
+        Route::delete('exam_schedule/delete', [App\Http\Controllers\ExamScheduleController::class, 'destroy'])->name('exam_schedule/delete');
     });
 
     // Settings

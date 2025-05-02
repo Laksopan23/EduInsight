@@ -10,7 +10,6 @@
 namespace PHPUnit\TestRunner\TestResult;
 
 use function count;
-use PHPUnit\Event\Test\AfterLastTestMethodErrored;
 use PHPUnit\Event\Test\BeforeFirstTestMethodErrored;
 use PHPUnit\Event\Test\ConsideredRisky;
 use PHPUnit\Event\Test\Errored;
@@ -37,7 +36,7 @@ final class TestResult
     private readonly int $numberOfAssertions;
 
     /**
-     * @psalm-var list<AfterLastTestMethodErrored|BeforeFirstTestMethodErrored|Errored>
+     * @psalm-var list<BeforeFirstTestMethodErrored|Errored>
      */
     private readonly array $testErroredEvents;
 
@@ -132,7 +131,7 @@ final class TestResult
     private readonly int $numberOfIssuesIgnoredByBaseline;
 
     /**
-     * @psalm-param list<AfterLastTestMethodErrored|BeforeFirstTestMethodErrored|Errored> $testErroredEvents
+     * @psalm-param list<BeforeFirstTestMethodErrored|Errored> $testErroredEvents
      * @psalm-param list<Failed> $testFailedEvents
      * @psalm-param array<string,list<ConsideredRisky>> $testConsideredRiskyEvents
      * @psalm-param list<TestSuiteSkipped> $testSuiteSkippedEvents
@@ -189,7 +188,7 @@ final class TestResult
     }
 
     /**
-     * @psalm-return list<AfterLastTestMethodErrored|BeforeFirstTestMethodErrored|Errored>
+     * @psalm-return list<BeforeFirstTestMethodErrored|Errored>
      */
     public function testErroredEvents(): array
     {

@@ -17,9 +17,8 @@ declare(strict_types=1);
 namespace League\CommonMark\Extension\CommonMark\Renderer\Block;
 
 use League\CommonMark\Extension\CommonMark\Node\Block\ListItem;
-use League\CommonMark\Node\Block\AbstractBlock;
+use League\CommonMark\Extension\TaskList\TaskListItemMarker;
 use League\CommonMark\Node\Block\Paragraph;
-use League\CommonMark\Node\Block\TightBlockInterface;
 use League\CommonMark\Node\Node;
 use League\CommonMark\Renderer\ChildNodeRendererInterface;
 use League\CommonMark\Renderer\NodeRendererInterface;
@@ -40,14 +39,11 @@ final class ListItemRenderer implements NodeRendererInterface, XmlNodeRendererIn
         ListItem::assertInstanceOf($node);
 
         $contents = $childRenderer->renderNodes($node->children());
-
-        $inTightList = ($parent = $node->parent()) && $parent instanceof TightBlockInterface && $parent->isTight();
-
-        if ($this->needsBlockSeparator($node->firstChild(), $inTightList)) {
+        if (\substr($contents, 0, 1) === '<' && ! $this->startsTaskListItem($node)) {
             $contents = "\n" . $contents;
         }
 
-        if ($this->needsBlockSeparator($node->lastChild(), $inTightList)) {
+        if (\substr($contents, -1, 1) === '>') {
             $contents .= "\n";
         }
 
@@ -69,12 +65,10 @@ final class ListItemRenderer implements NodeRendererInterface, XmlNodeRendererIn
         return [];
     }
 
-    private function needsBlockSeparator(?Node $child, bool $inTightList): bool
+    private function startsTaskListItem(ListItem $block): bool
     {
-        if ($child instanceof Paragraph && $inTightList) {
-            return false;
-        }
+        $firstChild = $block->firstChild();
 
-        return $child instanceof AbstractBlock;
+        return $firstChild instanceof Paragraph && $firstChild->firstChild() instanceof TaskListItemMarker;
     }
 }

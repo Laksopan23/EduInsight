@@ -39,7 +39,6 @@
                                     <div class="form-group local-forms">
                                         <label>Grade <span class="login-danger">*</span></label>
                                         <select class="form-control @error('grade') is-invalid @enderror" name="grade">
-                                            <option value="" disabled {{ old('grade') ? '' : 'selected' }}>Select Grade</option>
                                             @foreach ($grades as $grade)
                                                 <option value="{{ $grade }}" {{ old('grade') == $grade ? 'selected' : '' }}>{{ $grade }}</option>
                                             @endforeach
@@ -53,7 +52,6 @@
                                     <div class="form-group local-forms">
                                         <label>Category <span class="login-danger">*</span></label>
                                         <select class="form-control @error('category') is-invalid @enderror" name="category">
-                                            <option value="" disabled {{ old('category') ? '' : 'selected' }}>Select Category</option>
                                             @foreach ($categories as $category)
                                                 <option value="{{ $category }}" {{ old('category') == $category ? 'selected' : '' }}>{{ $category }}</option>
                                             @endforeach
@@ -67,7 +65,6 @@
                                     <div class="form-group local-forms">
                                         <label>Mandatory <span class="login-danger">*</span></label>
                                         <select class="form-control @error('is_mandatory') is-invalid @enderror" name="is_mandatory">
-                                            <option value="" disabled {{ old('is_mandatory') === null ? 'selected' : '' }}>Select Mandatory Status</option>
                                             <option value="1" {{ old('is_mandatory') == '1' ? 'selected' : '' }}>Yes</option>
                                             <option value="0" {{ old('is_mandatory') == '0' ? 'selected' : '' }}>No</option>
                                         </select>

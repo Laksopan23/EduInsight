@@ -176,6 +176,23 @@
                     </ul>
                 </li>
 
+                                <!-- Results -->
+                                <li class="submenu {{ set_active(['results.list', 'results.add', 'results.edit/*', 'results.show/*']) }}">
+                                    <a href="#">
+                                        <i class="fas fa-chart-bar"></i>
+                                        <span> Results</span>
+                                        <span class="menu-arrow"></span>
+                                    </a>
+                                    <ul>
+                                        <li><a href="{{ route('results.list') }}" class="{{ set_active(['results.list']) }}">Results List</a></li>
+                                        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Teachers')
+                                        <li><a href="{{ route('results.add') }}" class="{{ set_active(['results.add']) }}">Add Result</a></li>
+                                        <li><a href="#" class="{{ request()->is('results/edit/*') ? 'active' : '' }}">Edit Result</a></li>
+                                        @endif
+                                        <li><a href="#" class="{{ request()->is('results/show/*') ? 'active' : '' }}">View Result</a></li>
+                                    </ul>
+                                </li>
+
                 <!-- Exam Schedules -->
                 <li class="submenu {{ set_active(['exam_schedule/list', 'exam_schedule/add', 'exam_schedule/edit/*']) }}">
                     <a href="#">
@@ -192,25 +209,6 @@
                     </ul>
                 </li>
 
-                <!-- Invoices -->
-                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
-                <li class="submenu {{ set_active(['invoice/list/page', 'invoice/paid/page', 'invoice/overdue/page', 'invoice/draft/page', 'invoice/recurring/page', 'invoice/cancelled/page', 'invoice/grid/page', 'invoice/add/page', 'invoice/view/*', 'invoice/edit/*', 'invoice/settings/page', 'invoice/settings/tax/page', 'invoice/settings/bank/page']) }}">
-                    <a href="#">
-                        <i class="fas fa-clipboard"></i>
-                        <span> Invoices</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <ul>
-                        <li><a href="{{ route('invoice/list/page') }}" class="{{ set_active(['invoice/list/page']) }}">Invoices List</a></li>
-                        <li><a href="{{ route('invoice/grid/page') }}" class="{{ set_active(['invoice/grid/page']) }}">Invoices Grid</a></li>
-                        <li><a href="{{ route('invoice/add/page') }}" class="{{ set_active(['invoice/add/page']) }}">Add Invoices</a></li>
-                        <li><a href="#" class="{{ request()->is('invoice/edit/*') ? 'active' : '' }}">Edit Invoices</a></li>
-                        <li><a href="#" class="{{ request()->is('invoice/view/*') ? 'active' : '' }}">Invoices Details</a></li>
-                        <li><a href="{{ route('invoice/settings/page') }}" class="{{ set_active(['invoice/settings/page']) }}">Invoices Settings</a></li>
-                    </ul>
-                </li>
-                @endif
-
                 <!-- Accounts -->
                 @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
                 <li class="submenu {{ set_active(['account/fees/collections/page', 'add/fees/collection/page']) }}">
@@ -226,14 +224,6 @@
                     </ul>
                 </li>
                 @endif
-
-                <!-- Holiday -->
-                <li class="{{ set_active(['holiday']) }}">
-                    <a href="#">
-                        <i class="fas fa-holly-berry"></i>
-                        <span>Holiday</span>
-                    </a>
-                </li>
 
                 <!-- Settings -->
                 @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')

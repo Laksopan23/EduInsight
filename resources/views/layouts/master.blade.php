@@ -44,7 +44,8 @@
         <div class="header">
             <div class="header-left">
                 <a href="{{ route('home') }}" class="logo">
-                    <img src="{{ URL::to('assets/img/logo.png') }}" alt="Logo">
+                    <img src="{{ URL::to('assets/img/logo1.png') }}" alt="Logo" style="vertical-align: middle; height: 40px; margin-right: 10px;">
+<h3 class="logo-title" style="display: inline-block; vertical-align: middle; margin: 0;">EduInsight</h3>
                 </a>
                 <a href="{{ route('home') }}" class="logo logo-small">
                     <img src="{{ URL::to('assets/img/logo-small.png') }}" alt="Logo" width="30" height="30">
@@ -56,20 +57,13 @@
                 </a>
             </div>
 
-            <div class="top-nav-search">
-                <form>
-                    <input type="text" class="form-control" placeholder="Search here">
-                    <button class="btn" type="submit"><i class="fas fa-search"></i></button>
-                </form>
-            </div>
+            
             <a class="mobile_btn" id="mobile_btn">
                 <i class="fas fa-bars"></i>
             </a>
             <ul class="nav user-menu">
                 <li class="nav-item dropdown noti-dropdown language-drop me-2">
-                    <a href="#" class="dropdown-toggle nav-link header-nav-list" data-bs-toggle="dropdown">
-                        <img src="{{ URL::to('assets/img/icons/header-icon-01.svg') }}" alt="">
-                    </a>
+                    
                     <div class="dropdown-menu ">
                         <div class="noti-content">
                             <div>
@@ -198,7 +192,7 @@
         {{-- content page --}}
         @yield('content')
         <footer>
-            <p>Copyright ©  <?php echo date('Y'); ?> Soeng Souy.</p>
+            <p>Copyright ©  <?php echo date('Y'); ?> EduInsight</p>
         </footer>
     </div>
 

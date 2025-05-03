@@ -33,14 +33,20 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        <label for="sender">Sender <span class="text-danger">*</span></label>
-                                        <input type="text" name="sender" id="sender" class="form-control" value="{{ $communication->sender }}" required>
+                                        <label>Sender <span class="text-danger">*</span></label>
+                                        <input type="text" name="sender" id="sender" class="form-control" value="{{ $communication->sender }}" readonly>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        <label for="receiver">Receiver <span class="text-danger">*</span></label>
-                                        <input type="text" name="receiver" id="receiver" class="form-control" value="{{ $communication->receiver }}" required>
+                                        <label for="receiver">Receivers <span class="text-danger">*</span></label>
+                                        <select name="receiver[]" id="receiver" class="form-control select2" multiple required>
+                                            @foreach($guardians as $guardian)
+                                                <option value="{{ $guardian->id }}" {{ in_array($guardian->id, $communication->receivers->pluck('id')->toArray()) ? 'selected' : '' }}>
+                                                    {{ $guardian->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
@@ -93,4 +99,13 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('script')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2').select2();
+    });
+</script>
 @endsection

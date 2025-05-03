@@ -9,12 +9,12 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('invoice_additional_charges', function (Blueprint $table) {
+        Schema::create('communication_user', function (Blueprint $table) {
             $table->id();
-            $table->string('invoice_id')->nullable();
-            $table->string('service_charge')->nullable();
+            $table->foreignId('communication_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('invoice_additional_charges');
+        Schema::dropIfExists('communication_user');
     }
 };

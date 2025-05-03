@@ -2,18 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Communication extends Model
 {
-    use HasFactory;
+    protected $fillable = ['title', 'message', 'sender', 'schedule_date', 'schedule_time', 'meeting_link', 'note'];
 
-    protected $fillable = [
-        'title',
-        'message',
-        'sender',
-        'receiver',
-        'meeting_link', // Added for live meeting link
-    ];
+    public function receivers()
+    {
+        return $this->belongsToMany(User::class, 'communication_user', 'communication_id', 'user_id');
+    }
 }

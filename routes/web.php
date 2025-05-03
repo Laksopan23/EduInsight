@@ -19,6 +19,7 @@ use App\Http\Controllers\GuardianController;
 use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ExamScheduleController;
+use App\Http\Controllers\ResultController;
 
 /*
 |--------------------------------------------------------------------------
@@ -86,6 +87,17 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('exam_schedule/delete', [App\Http\Controllers\ExamScheduleController::class, 'destroy'])->name('exam_schedule/delete');
     });
 
+    //Results
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/results', [ResultController::class, 'index'])->name('results.list');
+        Route::get('/results/add', [ResultController::class, 'create'])->name('results.add');
+        Route::post('/results/store', [ResultController::class, 'store'])->name('results.store');
+        Route::get('/results/edit/{id}', [ResultController::class, 'edit'])->name('results.edit');
+        Route::put('/results/update/{id}', [ResultController::class, 'update'])->name('results.update');
+        Route::get('/results/show/{id}', [ResultController::class, 'show'])->name('results.show');
+        Route::delete('/results/delete/{id}', [ResultController::class, 'destroy'])->name('results.delete');
+    });
+
     // Settings
     Route::controller(Setting::class)->group(function () {
         Route::get('setting/page', 'index')->name('setting/page');
@@ -136,26 +148,6 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('subject/edit/{id}', 'subjectEdit')->middleware('admin')->name('subject/edit');
         Route::post('subject/update', 'updateRecord')->middleware('admin')->name('subject/update');
         Route::post('subject/delete', 'deleteRecord')->middleware('admin')->name('subject/delete');
-    });
-
-    // Invoices
-    Route::controller(InvoiceController::class)->group(function () {
-        Route::get('invoice/list/page', 'invoiceList')->name('invoice/list/page');
-        Route::get('invoice/paid/page', 'invoicePaid')->name('invoice/paid/page');
-        Route::get('invoice/overdue/page', 'invoiceOverdue')->name('invoice/overdue/page');
-        Route::get('invoice/draft/page', 'invoiceDraft')->name('invoice/draft/page');
-        Route::get('invoice/recurring/page', 'invoiceRecurring')->name('invoice/recurring/page');
-        Route::get('invoice/cancelled/page', 'invoiceCancelled')->name('invoice/cancelled/page');
-        Route::get('invoice/grid/page', 'invoiceGrid')->name('invoice/grid/page');
-        Route::get('invoice/add/page', 'invoiceAdd')->name('invoice/add/page');
-        Route::post('invoice/add/save', 'saveRecord')->name('invoice/add/save');
-        Route::post('invoice/update/save', 'updateRecord')->name('invoice/update/save');
-        Route::post('invoice/delete', 'deleteRecord')->name('invoice/delete');
-        Route::get('invoice/edit/{invoice_id}', 'invoiceEdit')->name('invoice/edit/page');
-        Route::get('invoice/view/{invoice_id}', 'invoiceView')->name('invoice/view/page');
-        Route::get('invoice/settings/page', 'invoiceSettings')->name('invoice/settings/page');
-        Route::get('invoice/settings/tax/page', 'invoiceSettingsTax')->name('invoice/settings/tax/page');
-        Route::get('invoice/settings/bank/page', 'invoiceSettingsBank')->name('invoice/settings/bank/page');
     });
 
     // Accounts

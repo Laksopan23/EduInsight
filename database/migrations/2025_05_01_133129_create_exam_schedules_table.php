@@ -42,8 +42,8 @@ class ExamScheduleController extends Controller
                 'category' => 'required|string',
                 'subjects' => 'required|array', // Array of subjects with date, time, venue
                 'subjects.*.subject' => 'required|string',
-                'subjects.*.exam_date' => 'required|date',
-                'subjects.*.exam_time' => 'required',
+                'subjects.*.exam_date' => 'nullable|date',
+                'subjects.*.exam_time' => 'nullable',
                 'subjects.*.venue' => 'nullable|string',
             ]);
 

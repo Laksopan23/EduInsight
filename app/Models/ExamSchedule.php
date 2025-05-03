@@ -16,5 +16,6 @@ class ExamSchedule extends Model
         'exam_date',
         'exam_time',
         'venue',
+        'pdf_path',
     ];
 }

@@ -144,7 +144,7 @@
                 </li>
 
                 <!-- Communication -->
-                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin' || Session::get('role_name') === 'Teachers')
+                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin' || Session::get('role_name') === 'Teachers' || Session::get('role_name') === 'Guardian')
                 <li class="submenu {{ set_active(['communication/list', 'communication/grid', 'communication/add/page', 'communication/edit/*', 'communication/profile/*']) }}">
                     <a href="#">
                         <i class="fas fa-comments"></i>
@@ -152,9 +152,12 @@
                         <span class="menu-arrow"></span>
                     </a>
                     <ul>
+                        
                         <li><a href="{{ route('communication/list') }}" class="{{ set_active(['communication/list', 'communication/grid']) }}">Communication List</a></li>
+                        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin' || Session::get('role_name') === 'Teachers')
                         <li><a href="{{ route('communication/add/page') }}" class="{{ set_active(['communication/add/page']) }}">Add Communication</a></li>
                         <li><a href="#" class="{{ request()->is('communication/edit/*') ? 'active' : '' }}">Edit Communication</a></li>
+                        @endif
                         <li><a href="#" class="{{ request()->is('communication/profile/*') ? 'active' : '' }}">View Communication</a></li>
                     </ul>
                 </li>

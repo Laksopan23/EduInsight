@@ -53,12 +53,14 @@
                                                 <a href="{{ route('communication/profile', $communication->id) }}" class="btn btn-sm bg-info-light">
                                                     <i class="far fa-eye me-2"></i> View
                                                 </a>
+                                                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Teachers')
                                                 <a href="{{ route('communication/edit', $communication->id) }}" class="btn btn-sm bg-success-light">
-                                                    <i class="far fa-edit me-2"></i> Edit
+                                                    <i class="far fa-edit me-2"></i> 
                                                 </a>
                                                 <a class="btn btn-sm bg-danger-light communication_delete" data-bs-toggle="modal" data-bs-target="#communicationDelete">
                                                     <i class="far fa-trash-alt me-2"></i>
                                                 </a>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>

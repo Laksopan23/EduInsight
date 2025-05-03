@@ -6,10 +6,10 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="page-sub-header">
-                        <h3 class="page-title">Exam Schedules</h3>
+                        <h3 class="page-title">Exam Schedules & Tutorials</h3>
                         <ul class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{ route('exam_schedule/list') }}">Exam Schedule</a></li>
-                            <li class="breadcrumb-item active">All Exam Schedules</li>
+                            <li class="breadcrumb-item active">All</li>
                         </ul>
                     </div>
                 </div>
@@ -26,9 +26,7 @@
                                     <h3 class="page-title">Exam Schedules</h3>
                                 </div>
                                 <div class="col-auto text-end float-end ms-auto download-grp">
-                                    <!-- Placeholder for list view (not implemented) -->
                                     <a href="{{ route('exam_schedule/list') }}" class="btn btn-outline-gray me-2"><i class="fa fa-list"></i></a>
-                                    <!-- Current grid view (active) -->
                                     <a href="{{ route('exam_schedule/list') }}" class="btn btn-outline-gray me-2 active"><i class="fa fa-th"></i></a>
                                     @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Teachers')
                                     <a href="{{ route('exam_schedule/add') }}" class="btn btn-primary"><i class="fas fa-plus"></i></a>
@@ -50,13 +48,20 @@
                                                     <p>Date: {{ $schedule->exam_date }}</p>
                                                     <p>Time: {{ $schedule->exam_time }}</p>
                                                     <p>Venue: {{ $schedule->venue ?? 'N/A' }}</p>
+                                                    @if($schedule->pdf_path)
+                                                    <p>
+                                                        <a href="{{ Storage::url($schedule->pdf_path) }}" class="btn btn-sm bg-primary-light" download>
+                                                            <i class="fas fa-download me-2"></i> Download PDF
+                                                        </a>
+                                                    </p>
+                                                    @endif
                                                     @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Teachers')
                                                     <div class="actions">
                                                         <a href="{{ route('exam_schedule/edit', $schedule->id) }}" class="btn btn-sm bg-danger-light">
                                                             <i class="far fa-edit me-2"></i> Edit
                                                         </a>
                                                         <a class="btn btn-sm bg-danger-light exam_schedule_delete" data-bs-toggle="modal" data-bs-target="#examScheduleDelete" data-id="{{ $schedule->id }}">
-                                                            <i class="far fa-trash-alt me-2"></i> 
+                                                            <i class="far fa-trash-alt me-2"></i>
                                                         </a>
                                                     </div>
                                                     @endif
@@ -67,6 +72,56 @@
                                 </div>
                                 @empty
                                 <p class="text-center text-muted mt-3">No exam schedules found.</p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-table comman-shadow mt-4">
+                    <div class="card-body pb-0">
+                        <div class="page-header">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h3 class="page-title">Tutorials</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="student-pro-list">
+                            <div class="row">
+                                @forelse ($tutorials as $tutorial)
+                                <div class="col-xl-3 col-lg-4 col-md-6 d-flex">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="student-box flex-fill">
+                                                <div class="student-content pb-0">
+                                                    <h5>{{ $tutorial->grade }}</h5>
+                                                    <h6>Subject: {{ $tutorial->subject }}</h6>
+                                                    @if($tutorial->pdf_path)
+                                                    <p>
+                                                        <a href="{{ Storage::url($tutorial->pdf_path) }}" class="btn btn-sm bg-primary-light" download>
+                                                            <i class="fas fa-download me-2"></i> Download PDF
+                                                        </a>
+                                                    </p>
+                                                    @endif
+                                                    @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Teachers')
+                                                    <div class="actions">
+                                                        <a href="{{ route('exam_schedule/edit', $tutorial->id) }}" class="btn btn-sm bg-danger-light">
+                                                            <i class="far fa-edit me-2"></i> Edit
+                                                        </a>
+                                                        <a class="btn btn-sm bg-danger-light exam_schedule_delete" data-bs-toggle="modal" data-bs-target="#examScheduleDelete" data-id="{{ $tutorial->id }}">
+                                                            <i class="far fa-trash-alt me-2"></i>
+                                                        </a>
+                                                    </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @empty
+                                <p class="text-center text-muted mt-3">No tutorials found.</p>
                                 @endforelse
                             </div>
                         </div>
@@ -83,7 +138,7 @@
         <div class="modal-content">
             <div class="modal-body">
                 <div class="form-header">
-                    <h3>Delete Exam Schedule</h3>
+                    <h3>Delete Exam Schedule or Tutorial</h3>
                     <p>Are you sure you want to delete?</p>
                 </div>
                 <div class="modal-btn delete-action">

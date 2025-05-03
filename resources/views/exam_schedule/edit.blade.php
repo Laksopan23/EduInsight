@@ -6,7 +6,7 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="page-sub-header">
-                        <h3 class="page-title">Edit Exam Schedule</h3>
+                        <h3 class="page-title">Edit Exam Schedule or Tutorial</h3>
                         <ul class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{ route('exam_schedule/list') }}">Exam Schedule</a></li>
                             <li class="breadcrumb-item active">Edit</li>
@@ -20,10 +20,12 @@
             <div class="col-sm-12">
                 <div class="card comman-shadow">
                     <div class="card-body">
-                        <form action="{{ route('exam_schedule/update', $examSchedule->id) }}" method="POST">
+                        <form action="{{ route('exam_schedule/update', $examSchedule->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="row">
+                                @if($examSchedule->exam_date)
+                                <!-- Exam Schedule Section -->
                                 <div class="col-12">
                                     <h5 class="form-title student-info">Exam Schedule Information</h5>
                                 </div>
@@ -92,6 +94,47 @@
                                         @enderror
                                     </div>
                                 </div>
+                                @else
+                                <!-- Tutorial Section -->
+                                <div class="col-12">
+                                    <h5 class="form-title student-info">Tutorial Information</h5>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <div class="form-group local-forms">
+                                        <label>Grade <span class="login-danger">*</span></label>
+                                        <select name="grade" class="form-control select @error('grade') is-invalid @enderror" required>
+                                            <option value="">Select Grade</option>
+                                            @for ($i = 1; $i <= 13; $i++)
+                                                <option value="Grade {{ $i }}" {{ $examSchedule->grade == 'Grade '.$i ? 'selected' : '' }}>Grade {{ $i }}</option>
+                                            @endfor
+                                        </select>
+                                        @error('grade')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <div class="form-group local-forms">
+                                        <label>Subject <span class="login-danger">*</span></label>
+                                        <input type="text" name="subject" class="form-control @error('subject') is-invalid @enderror" value="{{ $examSchedule->subject }}" required>
+                                        @error('subject')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <div class="form-group local-forms">
+                                        <label>PDF Upload <span class="login-danger">*</span></label>
+                                        <input type="file" name="pdf" class="form-control @error('pdf') is-invalid @enderror" accept="application/pdf">
+                                        @if($examSchedule->pdf_path)
+                                            <small>Current PDF: <a href="{{ Storage::url($examSchedule->pdf_path) }}" target="_blank">View PDF</a></small>
+                                        @endif
+                                        @error('pdf')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                @endif
                                 <div class="col-12">
                                     <div class="student-submit">
                                         <button type="submit" class="btn btn-primary">Update</button>

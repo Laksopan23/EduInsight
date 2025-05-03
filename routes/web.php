@@ -85,6 +85,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('exam_schedule/edit/{id}', [App\Http\Controllers\ExamScheduleController::class, 'edit'])->name('exam_schedule/edit');
         Route::put('exam_schedule/update/{id}', [App\Http\Controllers\ExamScheduleController::class, 'update'])->name('exam_schedule/update');
         Route::delete('exam_schedule/delete', [App\Http\Controllers\ExamScheduleController::class, 'destroy'])->name('exam_schedule/delete');
+        Route::post('exam_schedule/store-schedule', [App\Http\Controllers\ExamScheduleController::class, 'storeSchedule'])->name('exam_schedule.store_schedule');
+        Route::post('exam_schedule/store-tutorial', [App\Http\Controllers\ExamScheduleController::class, 'storeTutorial'])->name('exam_schedule.store_tutorial');
     });
 
     //Results

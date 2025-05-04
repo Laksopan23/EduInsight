@@ -171,4 +171,20 @@ class ExamScheduleController extends Controller
         }
         return redirect()->route('exam_schedule/list')->with('error', 'Unauthorized access');
     }
+
+    public function download($id)
+    {
+        $examSchedule = ExamSchedule::findOrFail($id);
+
+        if (!$examSchedule->pdf_path || !Storage::disk('public')->exists($examSchedule->pdf_path)) {
+            return redirect()->back()->with('error', 'PDF file not found');
+        }
+
+        $file = Storage::disk('public')->get($examSchedule->pdf_path);
+        $filename = $examSchedule->grade . '_' . $examSchedule->subject . '_' . basename($examSchedule->pdf_path);
+
+        return response($file, 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
 }

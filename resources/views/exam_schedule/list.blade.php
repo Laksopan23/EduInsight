@@ -50,7 +50,7 @@
                                                     <p>Venue: {{ $schedule->venue ?? 'N/A' }}</p>
                                                     @if($schedule->pdf_path)
                                                     <p>
-                                                        <a href="{{ Storage::url($schedule->pdf_path) }}" class="btn btn-sm bg-primary-light" download>
+                                                        <a href="{{ route('exam_schedule.download', $schedule->id) }}" class="btn btn-sm bg-primary-light">
                                                             <i class="fas fa-download me-2"></i> Download PDF
                                                         </a>
                                                     </p>
@@ -100,7 +100,7 @@
                                                     <h6>Subject: {{ $tutorial->subject }}</h6>
                                                     @if($tutorial->pdf_path)
                                                     <p>
-                                                        <a href="{{ Storage::url($tutorial->pdf_path) }}" class="btn btn-sm bg-primary-light" download>
+                                                        <a href="{{ route('exam_schedule.download', $tutorial->id) }}" class="btn btn-sm bg-primary-light">
                                                             <i class="fas fa-download me-2"></i> Download PDF
                                                         </a>
                                                     </p>

@@ -87,6 +87,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('exam_schedule/delete', [App\Http\Controllers\ExamScheduleController::class, 'destroy'])->name('exam_schedule/delete');
         Route::post('exam_schedule/store-schedule', [App\Http\Controllers\ExamScheduleController::class, 'storeSchedule'])->name('exam_schedule.store_schedule');
         Route::post('exam_schedule/store-tutorial', [App\Http\Controllers\ExamScheduleController::class, 'storeTutorial'])->name('exam_schedule.store_tutorial');
+        Route::get('/exam-schedule/download/{id}', [ExamScheduleController::class, 'download'])->name('exam_schedule.download');
     });
 
     //Results

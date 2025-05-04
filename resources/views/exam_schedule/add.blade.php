@@ -95,15 +95,7 @@
                                                     @enderror
                                                 </div>
                                             </div>
-                                            <div class="col-12 col-sm-2">
-                                                <div class="form-group local-forms">
-                                                    <label>PDF Upload (Optional)</label>
-                                                    <input type="file" name="subjects[0][pdf]" class="form-control @error('subjects.0.pdf') is-invalid @enderror" accept="application/pdf">
-                                                    @error('subjects.0.pdf')
-                                                        <span class="invalid-feedback">{{ $message }}</span>
-                                                    @enderror
-                                                </div>
-                                            </div>
+
                                         </div>
                                     </div>
                                     <div class="col-12">

@@ -139,4 +139,38 @@ class ResultController extends Controller
             return redirect()->back();
         }
     }
+
+    /** Download Results List Report as PDF */
+    public function downloadListReport()
+    {
+        try {
+            $results = Result::with(['teacher', 'student', 'subject'])->get();
+
+            if ($results->isEmpty()) {
+                Toastr::error('No results available to download :(', 'Error');
+                return redirect()->back();
+            }
+
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('results.results_list_report', compact('results'));
+            return $pdf->download('results_list_report_' . now()->format('Ymd_His') . '.pdf');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Exception while generating results list report: ' . $e->getMessage());
+            Toastr::error('Failed to generate report :(', 'Error');
+            return redirect()->back();
+        }
+    }
+
+    /** Download Result Profile Report as PDF */
+    public function downloadProfileReport($id)
+    {
+        try {
+            $result = Result::with(['teacher', 'student', 'subject'])->findOrFail($id);
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('results.result_profile_report', compact('result'));
+            return $pdf->download('result_profile_' . $result->id . '_' . now()->format('Ymd_His') . '.pdf');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Exception while generating result profile report: ' . $e->getMessage());
+            Toastr::error('Failed to generate report :(', 'Error');
+            return redirect()->back();
+        }
+    }
 }

@@ -238,4 +238,24 @@ class StudentController extends Controller
         $studentProfile = Student::with('user')->where('id', $id)->firstOrFail();
         return view('student.student-profile', compact('studentProfile'));
     }
+
+    /** Download Student List Report as PDF */
+    public function downloadListReport()
+    {
+        try {
+            $studentList = Student::with('user')->get();
+
+            if ($studentList->isEmpty()) {
+                Toastr::error('No students available to download :(', 'Error');
+                return redirect()->back();
+            }
+
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('student.student_list_report', compact('studentList'));
+            return $pdf->download('student_list_report_' . now()->format('Ymd_His') . '.pdf');
+        } catch (\Exception $e) {
+            Log::error('Exception while generating student list report: ' . $e->getMessage());
+            Toastr::error('Failed to generate report :(', 'Error');
+            return redirect()->back();
+        }
+    }
 }

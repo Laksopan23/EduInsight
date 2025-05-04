@@ -5,6 +5,7 @@
     <div class="content container-fluid">
         <div class="page-header">
             <div class="row align-items-center">
+                
                 <div class="col">
                     <h3 class="page-title">Result Details</h3>
                     <ul class="breadcrumb">
@@ -12,6 +13,13 @@
                         <li class="breadcrumb-item"><a href="{{ route('results.list') }}">Results</a></li>
                         <li class="breadcrumb-item active">Details</li>
                     </ul>
+                </div>
+
+                <div class="col-lg-12 text-end">
+                    <a href="{{ route('results.download.profile', $result->id) }}" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-download"></i> Download
+                    </a>
+                    <a href="{{ route('results.list') }}" class="btn btn-primary">Back to List</a>
                 </div>
             </div>
         </div>

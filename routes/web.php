@@ -99,6 +99,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::put('/results/update/{id}', [ResultController::class, 'update'])->name('results.update');
         Route::get('/results/show/{id}', [ResultController::class, 'show'])->name('results.show');
         Route::delete('/results/delete/{id}', [ResultController::class, 'destroy'])->name('results.delete');
+        Route::get('/results/download', [ResultController::class, 'downloadListReport'])->name('results.download.list');
+        Route::get('/results/download/{id}', [ResultController::class, 'downloadProfileReport'])->name('results.download.profile');
     });
 
     // Settings
@@ -116,6 +118,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('student/update', 'studentUpdate')->middleware('admin')->name('student/update');
         Route::post('student/delete', 'studentDelete')->middleware('admin')->name('student/delete');
         Route::get('student/profile/{id}', 'studentProfile')->name('student/profile');
+        Route::get('student/download', 'downloadListReport')->name('student.download.list');
     });
 
     // Teachers

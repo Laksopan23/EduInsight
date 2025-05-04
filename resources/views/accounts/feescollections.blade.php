@@ -26,7 +26,7 @@
                                         <h3 class="page-title">Fees Collections</h3>
                                     </div>
                                     <div class="col-auto text-end float-end ms-auto download-grp">
-                                        <a href="#" class="btn btn-outline-primary me-2">
+                                        <a href="{{ route('fees/collection/download') }}" class="btn btn-outline-primary me-2">
                                             <i class="fas fa-download"></i> Download
                                         </a>
                                         <a href="{{ route('add/fees/collection/page') }}" class="btn btn-primary">

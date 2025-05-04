@@ -161,6 +161,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('fees/collection/edit/{id}', 'edit')->name('fees/collection/edit');
         Route::put('fees/collection/update/{id}', 'updateRecord')->name('fees/collection/update');
         Route::post('fees/collection/delete', 'deleteRecord')->name('fees/collection/delete');
+        Route::get('fees/collection/download', 'downloadReport')->name('fees/collection/download');
     });
 });
 

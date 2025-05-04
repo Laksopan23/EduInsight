@@ -142,4 +142,25 @@ class AccountsController extends Controller
             return redirect()->back();
         }
     }
+
+    /** Download Fees Collection Report as PDF */
+    public function downloadReport()
+    {
+        try {
+            // Fetch fees information with user avatar
+            $feesInformation = FeesInformation::join('users', 'fees_information.student_id', '=', DB::raw('CAST(users.id AS CHAR)'))
+                ->select('fees_information.*', 'users.avatar')
+                ->get();
+
+            // Load the PDF view
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('accounts.fees_report', compact('feesInformation'));
+
+            // Download the PDF
+            return $pdf->download('fees_collection_report_' . now()->format('Ymd_His') . '.pdf');
+        } catch (\Exception $e) {
+            Log::error('Exception while generating fees report: ' . $e->getMessage());
+            Toastr::error('Failed to generate report :(', 'Error');
+            return redirect()->back();
+        }
+    }
 }

@@ -37,7 +37,23 @@ class StudentController extends Controller
         $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => [
+                'required',
+                'string',
+                'email:rfc,dns', // Stricter email validation with RFC compliance and DNS check
+                'max:255',
+                'unique:users,email',
+                function ($attribute, $value, $fail) {
+                    // Trim email to avoid spaces
+                    if (trim($value) !== $value) {
+                        $fail('The email should not contain leading or trailing spaces.');
+                    }
+                    // Enforce @gmail.com domain
+                    if (!Str::endsWith(strtolower(trim($value)), '@gmail.com')) {
+                        $fail('The email must end with @gmail.com.');
+                    }
+                },
+            ],
             'password' => 'required|string|min:8',
             'gender' => 'required|string|in:Male,Female,Others',
             'date_of_birth' => 'required|date',
@@ -61,7 +77,7 @@ class StudentController extends Controller
             $user = User::create([
                 'user_id' => 'USR' . Str::random(8),
                 'name' => $request->first_name . ' ' . $request->last_name,
-                'email' => $request->email,
+                'email' => trim($request->email), // Trim email before saving
                 'phone_number' => $request->phone_number,
                 'date_of_birth' => $request->date_of_birth,
                 'role_name' => 'Student',
@@ -88,7 +104,7 @@ class StudentController extends Controller
                 'roll' => $request->roll,
                 'blood_group' => $request->blood_group,
                 'religion' => $request->religion,
-                'email' => $request->email,
+                'email' => trim($request->email), // Trim email before saving
                 'class' => $request->class,
                 'section' => $request->section,
                 'admission_id' => $request->admission_id,
@@ -121,7 +137,23 @@ class StudentController extends Controller
             'id' => 'required|exists:students,id',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $student->user->user_id . ',user_id',
+            'email' => [
+                'required',
+                'string',
+                'email:rfc,dns', // Stricter email validation with RFC compliance and DNS check
+                'max:255',
+                'unique:users,email,' . $student->user->id . ',id', // Corrected unique validation to use 'id'
+                function ($attribute, $value, $fail) {
+                    // Trim email to avoid spaces
+                    if (trim($value) !== $value) {
+                        $fail('The email should not contain leading or trailing spaces.');
+                    }
+                    // Enforce @gmail.com domain
+                    if (!Str::endsWith(strtolower(trim($value)), '@gmail.com')) {
+                        $fail('The email must end with @gmail.com.');
+                    }
+                },
+            ],
             'password' => 'nullable|string|min:8',
             'gender' => 'required|string|in:Male,Female,Others',
             'date_of_birth' => 'required|date',
@@ -156,7 +188,7 @@ class StudentController extends Controller
 
             $userData = [
                 'name' => $request->first_name . ' ' . $request->last_name,
-                'email' => $request->email,
+                'email' => trim($request->email), // Trim email before saving
                 'phone_number' => $request->phone_number,
                 'date_of_birth' => $request->date_of_birth,
             ];
@@ -175,7 +207,7 @@ class StudentController extends Controller
                 'roll' => $request->roll,
                 'blood_group' => $request->blood_group,
                 'religion' => $request->religion,
-                'email' => $request->email,
+                'email' => trim($request->email), // Trim email before saving
                 'class' => $request->class,
                 'section' => $request->section,
                 'admission_id' => $request->admission_id,

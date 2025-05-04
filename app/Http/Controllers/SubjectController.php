@@ -8,20 +8,20 @@ use Brian2694\Toastr\Facades\Toastr;
 
 class SubjectController extends Controller
 {
-    public function subjectList()
+    public function index()
     {
         $subjects = Subject::all()->groupBy('grade');
         return view('subjects.subject_list', compact('subjects'));
     }
 
-    public function subjectAdd()
+    public function create()
     {
         $grades = ['Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11'];
         $categories = ['Core', 'Basket 1', 'Basket 2', 'Basket 3'];
         return view('subjects.subject_add', compact('grades', 'categories'));
     }
 
-    public function saveRecord(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:subjects,name,NULL,id,grade,' . $request->grade,
@@ -38,10 +38,10 @@ class SubjectController extends Controller
         ]);
 
         Toastr::success('Subject added successfully', 'Success');
-        return redirect()->route('subject/list/page');
+        return redirect()->route('subjects.index');
     }
 
-    public function subjectEdit($id)
+    public function edit($id)
     {
         $subject = Subject::findOrFail($id);
         $grades = ['Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11'];
@@ -49,17 +49,16 @@ class SubjectController extends Controller
         return view('subjects.subject_edit', compact('subject', 'grades', 'categories'));
     }
 
-    public function updateRecord(Request $request)
+    public function update(Request $request, $id)
     {
         $request->validate([
-            'id' => 'required|exists:subjects,id',
-            'name' => 'required|string|max:255|unique:subjects,name,' . $request->id . ',id,grade,' . $request->grade,
+            'name' => 'required|string|max:255|unique:subjects,name,' . $id . ',id,grade,' . $request->grade,
             'grade' => 'required|in:Grade 6,Grade 7,Grade 8,Grade 9,Grade 10,Grade 11',
             'category' => 'required|in:Core,Basket 1,Basket 2,Basket 3',
             'is_mandatory' => 'required|boolean',
         ]);
 
-        $subject = Subject::findOrFail($request->id);
+        $subject = Subject::findOrFail($id);
         $subject->update([
             'name' => $request->name,
             'grade' => $request->grade,
@@ -68,18 +67,15 @@ class SubjectController extends Controller
         ]);
 
         Toastr::success('Subject updated successfully', 'Success');
-        return redirect()->route('subject/list/page');
+        return redirect()->route('subjects.index');
     }
 
-    public function deleteRecord(Request $request)
+    public function destroy($id)
     {
-        $request->validate([
-            'id' => 'required|exists:subjects,id',
-        ]);
-
-        Subject::findOrFail($request->id)->delete();
+        $subject = Subject::findOrFail($id);
+        $subject->delete();
 
         Toastr::success('Subject deleted successfully', 'Success');
-        return redirect()->route('subject/list/page');
+        return redirect()->route('subjects.index');
     }
 }

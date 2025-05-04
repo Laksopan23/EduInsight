@@ -164,20 +164,20 @@
                 @endif
 
                 <!-- Subjects -->
-                <li class="submenu {{ set_active(['subject/list/page', 'subject/add/page', 'subject/edit/*']) }}">
-                    <a href="#">
-                        <i class="fas fa-book-reader"></i>
-                        <span> Subjects</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <ul>
-                        <li><a href="{{ route('subject/list/page') }}" class="{{ set_active(['subject/list/page']) }}">Subject List</a></li>
-                        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Teachers')
-                        <li><a href="{{ route('subject/add/page') }}" class="{{ set_active(['subject/add/page']) }}">Subject Add</a></li>
-                        <li><a href="#" class="{{ request()->is('subject/edit/*') ? 'active' : '' }}">Subject Edit</a></li>
-                        @endif
-                    </ul>
-                </li>
+<li class="submenu {{ request()->routeIs('subjects.index', 'subjects.create', 'subjects.edit') ? 'active open' : '' }}">
+    <a href="#">
+        <i class="fas fa-book-reader"></i>
+        <span>Subjects</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul>
+        <li><a href="{{ route('subjects.index') }}" class="{{ request()->routeIs('subjects.index') ? 'active' : '' }}">Subject List</a></li>
+        @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Teachers')
+            <li><a href="{{ route('subjects.create') }}" class="{{ request()->routeIs('subjects.create') ? 'active' : '' }}">Subject Add</a></li>
+            <li><a href="#" class="{{ request()->routeIs('subjects.edit') ? 'active' : '' }}">Subject Edit</a></li>
+        @endif
+    </ul>
+</li>
 
                                 <!-- Results -->
                                 <li class="submenu {{ set_active(['results.list', 'results.add', 'results.edit/*', 'results.show/*']) }}">

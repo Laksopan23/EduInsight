@@ -148,12 +148,12 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Subjects
     Route::controller(SubjectController::class)->group(function () {
-        Route::get('subject/list/page', 'subjectList')->name('subject/list/page');
-        Route::get('subject/add/page', 'subjectAdd')->middleware('admin')->name('subject/add/page');
-        Route::post('subject/save', 'saveRecord')->middleware('admin')->name('subject/save');
-        Route::get('subject/edit/{id}', 'subjectEdit')->middleware('admin')->name('subject/edit');
-        Route::post('subject/update', 'updateRecord')->middleware('admin')->name('subject/update');
-        Route::post('subject/delete', 'deleteRecord')->middleware('admin')->name('subject/delete');
+        Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.index');
+        Route::get('/subjects/create', [SubjectController::class, 'create'])->name('subjects.create');
+        Route::post('/subjects', [SubjectController::class, 'store'])->name('subjects.store');
+        Route::get('/subjects/{id}/edit', [SubjectController::class, 'edit'])->name('subjects.edit');
+        Route::put('/subjects/{id}', [SubjectController::class, 'update'])->name('subjects.update');
+        Route::delete('/subjects/{id}', [SubjectController::class, 'destroy'])->name('subjects.destroy');
     });
 
     // Accounts

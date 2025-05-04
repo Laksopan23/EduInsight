@@ -8,7 +8,7 @@
                     <div class="page-sub-header">
                         <h3 class="page-title">Subjects</h3>
                         <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('subject/list/page') }}">Subjects</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('subjects.index') }}">Subjects</a></li>
                             <li class="breadcrumb-item active">All Subjects</li>
                         </ul>
                     </div>
@@ -26,7 +26,7 @@
                                     <h3 class="page-title">Subjects by Grade</h3>
                                 </div>
                                 <div class="col-auto text-end float-end ms-auto download-grp">
-                                    <a href="{{ route('subject/add/page') }}" class="btn btn-primary"><i class="fas fa-plus"></i></a>
+                                    <a href="{{ route('subjects.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -53,11 +53,11 @@
                                         <td>{{ $subject->is_mandatory ? 'Yes' : 'No' }}</td>
                                         <td class="text-end">
                                             <div class="actions">
-                                                <a href="{{ route('subject/edit', $subject->id) }}" class="btn btn-sm bg-danger-light">
-                                                    <i class="far fa-edit me-2"></i>
+                                                <a href="{{ route('subjects.edit', $subject->id) }}" class="btn btn-sm bg-success-light">
+                                                    <i class="far fa-edit me-2"></i> Edit
                                                 </a>
                                                 <a class="btn btn-sm bg-danger-light subject_delete" data-bs-toggle="modal" data-bs-target="#subjectDelete" data-id="{{ $subject->id }}">
-                                                    <i class="far fa-trash-alt me-2"></i>
+                                                    <i class="far fa-trash-alt me-2"></i> Delete
                                                 </a>
                                             </div>
                                         </td>
@@ -84,9 +84,10 @@
                     <p>Are you sure you want to delete?</p>
                 </div>
                 <div class="modal-btn delete-action">
-                    <form action="{{ route('subject/delete') }}" method="POST">
+                    <form action="{{ route('subjects.destroy', ':id') }}" method="POST" id="deleteForm">
                         @csrf
-                        <input type="hidden" name="id" class="e_id" value="">
+                        @method('DELETE')
+                        <input type="hidden" name="id" id="deleteId" value="">
                         <div class="row">
                             <div class="col-6">
                                 <button type="submit" class="btn btn-primary continue-btn submit-btn">Delete</button>
@@ -106,7 +107,8 @@
 <script>
     $(document).on('click', '.subject_delete', function() {
         var id = $(this).data('id');
-        $('.e_id').val(id);
+        $('#deleteId').val(id);
+        $('#deleteForm').attr('action', '{{ route('subjects.destroy', '') }}/' + id);
     });
 </script>
 @endsection

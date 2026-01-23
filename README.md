@@ -386,12 +386,6 @@ php artisan test --filter=TestName  # Run specific test
 
 ---
 
-## 📜 License
-
-This project is open source and available under the MIT License.
-
----
-
 ## ✅ Project Completeness
 
 | Aspect | Status | Details |

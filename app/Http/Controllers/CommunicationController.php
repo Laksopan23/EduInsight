@@ -12,13 +12,28 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\PDF;
 
 class CommunicationController extends Controller
 {
-    // Show the communication list
-    public function communicationList()
+    // Show the communication list with search functionality
+    public function communicationList(Request $request)
     {
-        $communicationList = Communication::with('receivers')->get();
+        $query = Communication::with('receivers');
+
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('sender', 'like', '%' . $search . '%')
+                    ->orWhereHas('receivers', function ($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        $communicationList = $query->get();
         Log::info('Communication list loaded', ['count' => $communicationList->count()]);
         return view('communication.communication-list', compact('communicationList'));
     }
@@ -196,11 +211,11 @@ class CommunicationController extends Controller
 
         DB::beginTransaction();
         try {
-            $loggedInUser = Auth::user()->name; // Assuming name is stored in users table
+            $loggedInUser = Auth::user()->name;
             $communication = new Communication();
             $communication->title = $request->title;
             $communication->message = $request->message;
-            $communication->sender = $loggedInUser; // Set sender as logged-in user
+            $communication->sender = $loggedInUser;
             $communication->schedule_date = $request->schedule_date;
             $communication->schedule_time = $request->schedule_time;
 
@@ -216,7 +231,7 @@ class CommunicationController extends Controller
             }
 
             $communication->save();
-            $communication->receivers()->sync($request->receiver); // Sync multiple receivers
+            $communication->receivers()->sync($request->receiver);
 
             Log::info('Communication saved successfully', ['communication_id' => $communication->id]);
 
@@ -236,17 +251,19 @@ class CommunicationController extends Controller
     {
         $communication = Communication::with('receivers')->findOrFail($id);
         $guardians = User::where('role_name', 'Guardian')->get();
-        return view('communication.edit-communication', compact('communication', 'guardians'));
+        $loggedInUser = Auth::user();
+        return view('communication.edit-communication', compact('communication', 'guardians', 'loggedInUser'));
     }
 
     // Update communication record
     public function communicationUpdate(Request $request)
     {
         $request->validate([
-            'id'             => 'required|integer',
-            'title'          => 'required|string',
+            'id'             => 'required|integer|exists:communications,id',
+            'title'          => 'required|string|max:255',
             'message'        => 'required|string',
             'receiver'       => 'required|array',
+            'receiver.*'     => 'exists:users,id',
             'schedule_date'  => 'nullable|date',
             'schedule_time'  => 'nullable|date_format:H:i',
             'schedule_meeting' => 'nullable|boolean',
@@ -256,26 +273,27 @@ class CommunicationController extends Controller
         try {
             $loggedInUser = Auth::user()->name;
             $communication = Communication::findOrFail($request->id);
-            $communication->update([
-                'title'          => $request->title,
-                'message'        => $request->message,
-                'sender'         => $loggedInUser, // Keep sender as logged-in user
-                'schedule_date'  => $request->schedule_date,
-                'schedule_time'  => $request->schedule_time,
-            ]);
+            $communication->title = $request->title;
+            $communication->message = $request->message;
+            $communication->sender = $loggedInUser;
+            $communication->schedule_date = $request->schedule_date;
+            $communication->schedule_time = $request->schedule_time;
 
             if ($request->schedule_meeting && !$communication->meeting_link) {
                 $meetingLink = $this->generateMeetingLink($request->title, $request->schedule_date, $request->schedule_time);
                 if ($meetingLink) {
-                    $communication->update(['meeting_link' => $meetingLink]);
+                    $communication->meeting_link = $meetingLink;
                     Log::info('Meeting link updated for communication', ['communication_id' => $communication->id, 'meeting_link' => $meetingLink]);
                 } else {
                     Toastr::warning('Meeting not scheduled due to an error.', 'Warning');
                     Log::warning('Failed to schedule meeting for communication update', ['communication_id' => $communication->id]);
                 }
+            } elseif (!$request->schedule_meeting && $communication->meeting_link) {
+                $communication->meeting_link = null; // Remove meeting link if unchecked
             }
 
-            $communication->receivers()->sync($request->receiver); // Sync multiple receivers
+            $communication->save();
+            $communication->receivers()->sync($request->receiver);
 
             Toastr::success('Communication updated successfully :)', 'Success');
             DB::commit();
@@ -283,7 +301,7 @@ class CommunicationController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Failed to update communication', ['message' => $e->getMessage(), 'request' => $request->all()]);
-            Toastr::error('Failed to update communication : ' . $e->getMessage(), 'Error');
+            Toastr::error('Failed to update communication: ' . $e->getMessage(), 'Error');
             return redirect()->back()->withInput();
         }
     }
@@ -299,12 +317,13 @@ class CommunicationController extends Controller
     public function communicationDelete(Request $request)
     {
         $request->validate([
-            'id' => 'required|integer',
+            'id' => 'required|integer|exists:communications,id',
         ]);
 
         DB::beginTransaction();
         try {
             $communication = Communication::findOrFail($request->id);
+            $communication->receivers()->detach(); // Remove associated receivers
             $communication->delete();
             Log::info('Communication deleted successfully', ['communication_id' => $request->id]);
 
@@ -314,8 +333,15 @@ class CommunicationController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Failed to delete communication', ['message' => $e->getMessage()]);
-            Toastr::error('Failed to delete communication :)', 'Error');
+            Toastr::error('Failed to delete communication: ' . $e->getMessage(), 'Error');
             return redirect()->back();
         }
+    }
+
+    public function downloadCommunicationsPDF()
+    {
+        $communicationList = Communication::with('receivers')->get();
+        $pdf = PDF::loadView('communication.communications-pdf', compact('communicationList'));
+        return $pdf->download('communications_list.pdf');
     }
 }

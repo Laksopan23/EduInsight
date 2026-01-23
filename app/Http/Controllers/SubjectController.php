@@ -5,12 +5,25 @@ namespace App\Http\Controllers;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 use Brian2694\Toastr\Facades\Toastr;
+use Barryvdh\DomPDF\Facade\PDF;
 
 class SubjectController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $subjects = Subject::all()->groupBy('grade');
+        $query = Subject::query();
+
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('grade', 'like', '%' . $search . '%')
+                    ->orWhere('category', 'like', '%' . $search . '%');
+            });
+        }
+
+        $subjects = $query->get()->groupBy('grade');
         return view('subjects.subject_list', compact('subjects'));
     }
 
@@ -77,5 +90,12 @@ class SubjectController extends Controller
 
         Toastr::success('Subject deleted successfully', 'Success');
         return redirect()->route('subjects.index');
+    }
+
+    public function downloadSubjectsPDF()
+    {
+        $subjects = Subject::all()->groupBy('grade');
+        $pdf = PDF::loadView('subjects.subjects-pdf', compact('subjects'));
+        return $pdf->download('subjects_list.pdf');
     }
 }

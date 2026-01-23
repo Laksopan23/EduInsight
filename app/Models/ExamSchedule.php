@@ -18,4 +18,9 @@ class ExamSchedule extends Model
         'venue',
         'pdf_path',
     ];
+
+    protected $casts = [
+        'exam_date' => 'date',
+        'exam_time' => 'datetime:H:i'
+    ];
 }

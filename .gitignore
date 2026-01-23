@@ -1,1 +1,24 @@
 .env
+.env.*.php
+.env.backup
+*.env.local
+.env.production.local
+.env.*.local
+
+# Sensitive files
+/storage/
+/bootstrap/cache/
+/vendor/
+/node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+storage/logs/

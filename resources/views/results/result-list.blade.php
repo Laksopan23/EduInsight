@@ -21,7 +21,19 @@
                         <i class="fas fa-plus"></i> Add New Result
                     </a>
                 </div>
-                
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <form action="{{ route('results.list') }}" method="GET">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Search by teacher, student, or subject" value="{{ request('search') }}">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -92,7 +104,7 @@
                                     <button type="submit" class="btn btn-primary continue-btn submit-btn" style="border-radius: 5px !important;">Delete</button>
                                 </div>
                                 <div class="col-6">
-                                    <a href="#" data-bs-dismiss="modal" class="btn btn-primary paid-cancel-btn">Cancel</a>
+                                    <a href="#" data-bs-dismiss="modal" PMIDclass="btn btn-primary paid-cancel-btn">Cancel</a>
                                 </div>
                             </div>
                         </form>

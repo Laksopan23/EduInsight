@@ -55,7 +55,7 @@
                                     <a href="{{ route('teacher/grid') }}" class="btn btn-outline-gray me-2">
                                         <i class="fa fa-th" aria-hidden="true"></i>
                                     </a>
-                                    <a href="#" class="btn btn-outline-primary me-2"><i class="fas fa-download"></i> Download</a>
+                                    <a href="{{ route('teacher/download-pdf') }}" class="btn btn-outline-primary me-2"><i class="fas fa-download"></i> Download</a>
                                     <a href="{{ route('teacher/add') }}" class="btn btn-primary"><i class="fas fa-plus"></i></a>
                                 </div>
                             </div>

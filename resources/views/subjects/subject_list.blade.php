@@ -12,10 +12,26 @@
                             <li class="breadcrumb-item active">All Subjects</li>
                         </ul>
                     </div>
+                    <div class="col-auto text-end float-end ms-auto download-grp">
+                        <a href="{{ route('subjects.download-pdf') }}" class="btn btn-outline-primary me-2"><i class="fas fa-download"></i> Download</a>
+                        <a href="{{ route('subjects.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
         {!! Toastr::message() !!}
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <form action="{{ route('subjects.index') }}" method="GET">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Search by subject name, grade, or category" value="{{ request('search') }}">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
         <div class="row">
             <div class="col-sm-12">
                 <div class="card card-table comman-shadow">

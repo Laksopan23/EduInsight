@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Session;
 use App\Models\User;
 use App\Models\Teacher;
 use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\PDF;
 
 class TeacherController extends Controller
 {
@@ -197,4 +198,11 @@ class TeacherController extends Controller
             return redirect()->back();
         }
     }
+
+    public function downloadTeachersPDF()
+{
+    $teacherList = Teacher::with('user')->get();
+    $pdf = PDF::loadView('teacher.teachers-pdf', compact('teacherList'));
+    return $pdf->download('teachers_list.pdf');
+}
 }

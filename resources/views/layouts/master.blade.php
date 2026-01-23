@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>
         @if (Session::has('role_name'))
         @php
@@ -195,6 +196,9 @@
             <p>Copyright ©  <?php echo date('Y'); ?> EduInsight</p>
         </footer>
     </div>
+    @if (Session::has('role_name') && Session::get('role_name') === 'student')
+        @include('components.chat-box')
+    @endif
 
     <script src="{{ URL::to('assets/js/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ URL::to('assets/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>

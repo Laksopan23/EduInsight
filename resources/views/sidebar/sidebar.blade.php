@@ -81,18 +81,18 @@
                 @endif
 
                 <!-- User Management -->
-                @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
-                <li class="submenu {{ set_active(['list/users']) }}">
-                    <a href="#">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>User Management</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <ul>
-                        <li><a href="{{ route('list/users') }}" class="{{ set_active(['list/users']) }}">List Users</a></li>
-                    </ul>
-                </li>
-                @endif
+@if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
+<li class="submenu {{ set_active(['user/list']) }}">
+    <a href="#">
+        <i class="fas fa-shield-alt"></i>
+        <span>User Management</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul>
+        <li><a href="{{ route('user/list') }}" class="{{ set_active(['user/list']) }}">List Users</a></li>
+    </ul>
+</li>
+@endif
 
                 <!-- Guardians -->
                 @if (Session::get('role_name') === 'Admin' || Session::get('role_name') === 'Super Admin')
